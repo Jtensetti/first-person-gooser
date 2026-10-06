@@ -1,0 +1,9 @@
+{
+  "use_status": "review",
+  "license": "Fyll i den faktiskt tillämpliga produktlicensen",
+  "license_evidence": "",
+  "allowed_sources": [],
+  "redistribution_status": "review",
+  "vertical_crs": "EPSG:5613",
+  "note": "Kopiera till permission.local.json först efter att åtkomst och villkor har verifierats. Ange tillåtna produkt-URL:er. Ingen behörighet följer av denna mall."
+}

@@ -1,0 +1,96 @@
+{
+  "date": "2026-10-06",
+  "input_catalog_sha256": "a884f1ae7e5ede349b9bc36ead59d02dde0cfb2deb616b728fe6ce082334a678",
+  "tiles": [
+    {
+      "id": "E395500_N6133500_500",
+      "bounds": [
+        395500,
+        6133500,
+        396000,
+        6134000
+      ],
+      "origin": [
+        395500,
+        6133500,
+        0
+      ],
+      "file": "E395500_N6133500_500.tile.json.gz",
+      "sha256": "24d9b4dce8152bc5a0d277ab45cb4a3f61002031693346b288e7d6fbea95686b",
+      "bytes": 1480939,
+      "objects": 81,
+      "instances": 2679,
+      "triangles_lod0": 101013
+    },
+    {
+      "id": "E396000_N6133500_500",
+      "bounds": [
+        396000,
+        6133500,
+        396500,
+        6134000
+      ],
+      "origin": [
+        396000,
+        6133500,
+        0
+      ],
+      "file": "E396000_N6133500_500.tile.json.gz",
+      "sha256": "23b9531d702e1b20a16ac1570fa72231974756170a9981b28f36d796b2f1dc5c",
+      "bytes": 1181434,
+      "objects": 46,
+      "instances": 347,
+      "triangles_lod0": 84523
+    },
+    {
+      "id": "E395500_N6134000_500",
+      "bounds": [
+        395500,
+        6134000,
+        396000,
+        6134500
+      ],
+      "origin": [
+        395500,
+        6134000,
+        0
+      ],
+      "file": "E395500_N6134000_500.tile.json.gz",
+      "sha256": "4268e0d90ca96ca8639b0c213e5a3173d3354f20ad1d0936ca5abf665fdc175e",
+      "bytes": 1505732,
+      "objects": 66,
+      "instances": 5241,
+      "triangles_lod0": 127477
+    },
+    {
+      "id": "E396000_N6134000_500",
+      "bounds": [
+        396000,
+        6134000,
+        396500,
+        6134500
+      ],
+      "origin": [
+        396000,
+        6134000,
+        0
+      ],
+      "file": "E396000_N6134000_500.tile.json.gz",
+      "sha256": "fdfafa9c258414d4c1c5873fd8ba546126f1f2a786ffe82c2c0369dcc188d0a5",
+      "bytes": 1237559,
+      "objects": 260,
+      "instances": 498,
+      "triangles_lod0": 131289
+    }
+  ],
+  "counts": {
+    "terrain": 4,
+    "building": 255,
+    "road": 167,
+    "water": 6,
+    "field": 13
+  },
+  "instance_total": 8765,
+  "checks": "Structural QA passed; visual inspection of technical render completed. No acceptance against licensed ortho or LM original data.",
+  "raw_files_published": false
+}

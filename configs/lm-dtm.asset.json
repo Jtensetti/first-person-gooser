@@ -1,0 +1,38 @@
+{
+  "href": "https://dl1.lantmateriet.se/hojd/data/grid/mhm/61_3/m613_39.tif",
+  "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+  "roles": [
+    "data"
+  ],
+  "title": "m613_39.tif",
+  "file:size": 174583926,
+  "proj:bbox": [
+    390000.0,
+    6132500.0,
+    400000.0,
+    6140000.0
+  ],
+  "proj:code": "EPSG:5845",
+  "proj:shape": [
+    7500,
+    10000
+  ],
+  "file:checksum": "1220da624e77be2edf1e1ff9ad9c0e10997246cea2730e5a2b5775af17efdfdff39c",
+  "proj:transform": [
+    1.0,
+    0.0,
+    390000.0,
+    0.0,
+    -1.0,
+    6140000.0,
+    0.0,
+    0.0,
+    1.0
+  ],
+  "stac_collection": "dtm-cog",
+  "stac_item": "613_39",
+  "verified": "2026-10-06",
+  "metadata_url": "https://api.lantmateriet.se/stac-hojd/v1/collections/dtm-cog/items/613_39",
+  "observation_start": "2025-02-14T00:00:00Z",
+  "observation_end": "2025-02-19T00:00:00Z"
+}

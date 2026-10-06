@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "world": "smygehuk-1km",
+  "structural_pass": true,
+  "errors": [],
+  "tile_counts": {
+    "E395500_N6133500_500": {
+      "instances": 2679,
+      "objects": 81
+    },
+    "E396000_N6133500_500": {
+      "instances": 347,
+      "objects": 46
+    },
+    "E395500_N6134000_500": {
+      "instances": 5241,
+      "objects": 66
+    },
+    "E396000_N6134000_500": {
+      "instances": 498,
+      "objects": 260
+    }
+  },
+  "preview_only": true,
+  "acceptance_passed": false,
+  "gaps": [
+    "Terrain is a preview surface in EPSG:5773; not an RH2000 bare-earth DTM",
+    "Coarse surface model: no claims about ditches, embankments or surveyed terrain",
+    "No licensed orthophoto; procedural base materials only",
+    "No LiDAR or approved municipal 3D model; building heights unresolved where absent",
+    "Water boundary includes a 10 m NMD proxy",
+    "281 roofs use a modeled flat volume; roof structure unresolved",
+    "Tree heights and density use modeled prototypes; no accepted local canopy estimates",
+    "Vegetation assets, phenology and facade materials still require visual acceptance"
+  ],
+  "scope": "Checksums, finite geometry, face indices, shared LOD0 heights, instance budget. Not ortho/LiDAR/visual validation."
+}

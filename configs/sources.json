@@ -1,0 +1,248 @@
+{
+  "schema": 1,
+  "verified_on": "2026-10-06",
+  "sources": [
+    {
+      "id": "lm-dtm",
+      "role": "terrain",
+      "native_resolution_m": 1,
+      "reference_year": 2025,
+      "crs": "EPSG:5845",
+      "license_status": "GeoTorget product terms; STAC metadata CC-BY-4.0",
+      "access_status": "login_required",
+      "official_url": "https://geotorget.lantmateriet.se/geodataprodukter/markhojdmodell-nedladdning-api",
+      "decision": "download adapter + asset lock ready; HTTP 401 without entitlement"
+    },
+    {
+      "id": "lm-lidar",
+      "role": "vertical_structure",
+      "native_resolution_m": null,
+      "reference_year": 2025,
+      "crs": "EPSG:5845",
+      "license_status": "GeoTorget product terms and personal-data conditions",
+      "access_status": "login_required",
+      "official_url": "https://api.lantmateriet.se/stac-hojd/v1/collections/dsm-skoglig-copc",
+      "decision": "COPC metadata verified, original data not fetched"
+    },
+    {
+      "id": "municipal-buildings",
+      "role": "building_footprints",
+      "native_resolution_m": null,
+      "reference_year": null,
+      "crs": "EPSG:3008",
+      "license_status": "Unresolved source-specific reuse terms",
+      "access_status": "permission_required",
+      "official_url": "https://geodata.trelleborg.se/arcgis/rest/services/tomtkarta/Tomtkarta/MapServer/31",
+      "decision": "live ID/batch adapter prepared"
+    },
+    {
+      "id": "municipal-3d",
+      "role": "roof_geometry",
+      "native_resolution_m": null,
+      "reference_year": null,
+      "crs": "EPSG:3008",
+      "license_status": "Unresolved; Z reference requires confirmation",
+      "access_status": "permission_required",
+      "official_url": "https://geodata.trelleborg.se/arcgis/rest/services/TreD/Byggnader_3D_250407/FeatureServer/0",
+      "decision": "667 pilot features; staging supported, multipatch importer pending"
+    },
+    {
+      "id": "municipal-ortho",
+      "role": "visual_material",
+      "native_resolution_m": null,
+      "reference_year": null,
+      "crs": "EPSG:3008",
+      "license_status": "Unresolved imagery reuse/baking/distribution rights",
+      "access_status": "permission_required",
+      "official_url": "https://geodata.trelleborg.se/arcgis/rest/services/Ortofoto",
+      "decision": "catalogue years 2010–2025; no imagery transferred"
+    },
+    {
+      "id": "municipal-dtm",
+      "role": "terrain_candidate",
+      "native_resolution_m": null,
+      "reference_year": null,
+      "crs": "EPSG:3008",
+      "license_status": "Unresolved LM-derived product rights",
+      "access_status": "permission_required",
+      "official_url": "https://geodata.trelleborg.se/arcgis/rest/services/TreD/Markmodell_Lantmateriet_250408/ImageServer",
+      "decision": "service sampling ~0.57 m does not establish native resolution"
+    },
+    {
+      "id": "sjv-skiften",
+      "role": "fields",
+      "native_resolution_m": null,
+      "reference_year": 2025,
+      "crs": "EPSG:3006",
+      "license_status": "Public WFS NONE constraints; exact redistribution licence unresolved",
+      "access_status": "public_download",
+      "official_url": "https://epub.sjv.se/inspire/inspire/wfs",
+      "decision": "12 pilot+halo features fetched locally; no public raw redistribution"
+    },
+    {
+      "id": "sjv-block",
+      "role": "agricultural_envelopes",
+      "native_resolution_m": null,
+      "reference_year": 2025,
+      "crs": "EPSG:3006",
+      "license_status": "Same policy review as SJV parcels",
+      "access_status": "public_download",
+      "official_url": "https://jordbruksverket.se/e-tjanster-databaser-och-appar/e-tjanster-och-databaser-stod/kartor-och-gis",
+      "decision": "adapter prepared; not a substitute for crop-specific parcels"
+    },
+    {
+      "id": "nmd2023",
+      "role": "landcover",
+      "native_resolution_m": 10,
+      "reference_year": 2023,
+      "crs": "EPSG:3006",
+      "license_status": "CC0-1.0",
+      "access_status": "reused",
+      "official_url": "https://geodata.naturvardsverket.se/nedladdning/marktacke/NMD2023/Basskikt_v2_x/NMD2023_Produktbeskrivning_Basskikt_NMD2023_v2_x.pdf",
+      "decision": "v2.1 reused via audited WGS84 tiles; nearest classification"
+    },
+    {
+      "id": "skogsstyrelsen",
+      "role": "canopy_structure",
+      "native_resolution_m": null,
+      "reference_year": null,
+      "crs": null,
+      "license_status": "CC0 unless product says otherwise",
+      "access_status": "evaluated",
+      "official_url": "https://www.skogsstyrelsen.se/skogligagrunddata",
+      "decision": "check dates/resolution/units per raster before admission"
+    },
+    {
+      "id": "nvdb",
+      "role": "roads",
+      "native_resolution_m": null,
+      "reference_year": null,
+      "crs": "EPSG:3006",
+      "license_status": "Lastkajen product terms",
+      "access_status": "login_required",
+      "official_url": "https://www.nvdb.se/sv/kund/hamta-aktuella-data/",
+      "decision": "request geometry, width, class, bridge/tunnel"
+    },
+    {
+      "id": "trafikverket-rail",
+      "role": "rail",
+      "native_resolution_m": null,
+      "reference_year": null,
+      "crs": "EPSG:3006",
+      "license_status": "Lastkajen product terms",
+      "access_status": "login_required",
+      "official_url": "https://www.trafikverket.se/lastkajen",
+      "decision": "rail-specific extraction and attribute normalization pending"
+    },
+    {
+      "id": "alphaearth",
+      "role": "landscape_semantics",
+      "native_resolution_m": 10,
+      "reference_year": 2024,
+      "crs": null,
+      "license_status": "CC-BY-4.0",
+      "access_status": "optional_authenticated_export",
+      "official_url": "https://developers.google.com/earth-engine/datasets/catalog/GOOGLE_SATELLITE_EMBEDDING_V1_ANNUAL",
+      "decision": "64D export prepared; no exact heights; fusion pending"
+    },
+    {
+      "id": "sentinel2",
+      "role": "seasonal_vegetation",
+      "native_resolution_m": 10,
+      "reference_year": 2025,
+      "crs": null,
+      "license_status": "Copernicus open Sentinel terms",
+      "access_status": "optional_authenticated_export",
+      "official_url": "https://dataspace.copernicus.eu/data-collections/copernicus-sentinel-missions/sentinel-2",
+      "decision": "NDVI/RGB preparation; SCL is 20 m; no ortho replacement"
+    },
+    {
+      "id": "osm",
+      "role": "fallback_vectors",
+      "native_resolution_m": null,
+      "reference_year": null,
+      "crs": "EPSG:4326",
+      "license_status": "ODbL-1.0",
+      "access_status": "used_fallback",
+      "official_url": "https://www.openstreetmap.org/copyright",
+      "decision": "explicit small API extract; attribution and downstream ODbL review required"
+    },
+    {
+      "id": "smhi",
+      "role": "wind_atmosphere",
+      "native_resolution_m": null,
+      "reference_year": null,
+      "crs": null,
+      "license_status": "CC-BY-4.0 unless indicated otherwise",
+      "access_status": "evaluated",
+      "official_url": "https://www.smhi.se/data/om-smhis-data/villkor-for-anvandning",
+      "decision": "not needed for first static world; current light is artistic"
+    },
+    {
+      "id": "scb",
+      "role": "municipal_boundary",
+      "native_resolution_m": null,
+      "reference_year": 2025,
+      "crs": "EPSG:4326",
+      "license_status": "SCB open-data terms; retain source metadata",
+      "access_status": "reused",
+      "official_url": "https://www.scb.se/vara-tjanster/oppna-data/",
+      "decision": "existing dissolved RegSO geometry, not coastline/cadastral survey"
+    },
+    {
+      "id": "raa",
+      "role": "landmark_identity",
+      "native_resolution_m": null,
+      "reference_year": null,
+      "crs": null,
+      "license_status": "Dataset/image-specific terms",
+      "access_status": "optional",
+      "official_url": "https://www.raa.se/hitta-information/oppna-data/",
+      "decision": "no additional data downloaded"
+    },
+    {
+      "id": "jrc-water",
+      "role": "water_control",
+      "native_resolution_m": 30,
+      "reference_year": null,
+      "crs": null,
+      "license_status": "Product terms to retain if introduced",
+      "access_status": "optional",
+      "official_url": "https://global-surface-water.appspot.com/",
+      "decision": "historical water frequency is not present-day shore geometry"
+    },
+    {
+      "id": "copernicus-dem",
+      "role": "surface_control",
+      "native_resolution_m": 30,
+      "reference_year": null,
+      "crs": null,
+      "license_status": "Copernicus DEM licence/attribution",
+      "access_status": "optional",
+      "official_url": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM",
+      "decision": "DSM, not RH2000 DTM; legacy derived slope retained only as reference"
+    },
+    {
+      "id": "srtm",
+      "role": "preview_terrain",
+      "native_resolution_m": 30,
+      "reference_year": 2000,
+      "crs": "EGM96 / EPSG:5773 vertical",
+      "license_status": "NASA/USGS public data",
+      "access_status": "preview_only",
+      "official_url": "https://developers.google.com/earth-engine/datasets/catalog/USGS_SRTMGL1_003",
+      "decision": "coarse surface; cannot be admitted as final terrain"
+    },
+    {
+      "id": "lm-hydro",
+      "role": "coast_water_ditches",
+      "native_resolution_m": null,
+      "reference_year": null,
+      "crs": null,
+      "license_status": "GeoTorget hydrografi product terms",
+      "access_status": "login_required",
+      "official_url": "https://api.lantmateriet.se/ogc-features/v1/hydrografi",
+      "decision": "exact polygon source and permission still needed"
+    }
+  ]
+}

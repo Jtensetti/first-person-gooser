@@ -1,0 +1,26 @@
+[
+  {
+    "tile_size_m": 250,
+    "tile_count": 16,
+    "prepare_seconds": 10.541,
+    "compressed_bytes": 5296674,
+    "max_triangles_lod0": 33215,
+    "scope": "Python preprocessing only; not browser GPU/frame rate"
+  },
+  {
+    "tile_size_m": 500,
+    "tile_count": 4,
+    "prepare_seconds": 11.616,
+    "compressed_bytes": 4431432,
+    "max_triangles_lod0": 131289,
+    "scope": "Python preprocessing only; not browser GPU/frame rate"
+  },
+  {
+    "tile_size_m": 1000,
+    "tile_count": 1,
+    "prepare_seconds": 9.045,
+    "compressed_bytes": 3888688,
+    "max_triangles_lod0": 444296,
+    "scope": "Python preprocessing only; not browser GPU/frame rate"
+  }
+]

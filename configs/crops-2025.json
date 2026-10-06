@@ -1,0 +1,61 @@
+{
+  "year": 2025,
+  "source": "https://jordbruksverket.se/download/18.2bcd509f19a0482a6812518/1761052318525/Statistikens%20framst%C3%A4llning%20Jordbruksmarkens%20anv%C3%A4ndning%20%28JO%200104%29%202025-tga.pdf",
+  "source_date": "2025-10-22",
+  "verified": "2026-10-06",
+  "pages": [
+    7,
+    8
+  ],
+  "codes": {
+    "1": {
+      "category": "barley"
+    },
+    "2": {
+      "category": "barley"
+    },
+    "4": {
+      "category": "wheat"
+    },
+    "5": {
+      "category": "wheat"
+    },
+    "9": {
+      "category": "maize"
+    },
+    "20": {
+      "category": "rapeseed"
+    },
+    "21": {
+      "category": "rapeseed"
+    },
+    "45": {
+      "category": "potato"
+    },
+    "46": {
+      "category": "potato"
+    },
+    "47": {
+      "category": "sugar_beet"
+    },
+    "50": {
+      "category": "grass"
+    },
+    "52": {
+      "category": "grass"
+    },
+    "57": {
+      "category": "grass"
+    },
+    "58": {
+      "category": "grass"
+    },
+    "59": {
+      "category": "grass"
+    },
+    "318": {
+      "category": "flower_mix"
+    }
+  },
+  "note": "Selected supported main codes only. Renderer categories are project mappings; no inferred variety, height, sowing date or harvest status. Code 318 is a flowering mix, not rapeseed. Unknown codes remain unknown; compound/under-code crops need explicit mapping."
+}
