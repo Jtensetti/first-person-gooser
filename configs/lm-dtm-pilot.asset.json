@@ -1,0 +1,27 @@
+{
+  "href": "https://dl1.lantmateriet.se/hojd/data/grid1m/61_3/05/61325_3950_25.tif",
+  "type": "image/tiff; application=geotiff; profile=cloud-optimized",
+  "roles": [
+    "data"
+  ],
+  "title": "61325_3950_25",
+  "file:size": 4000172,
+  "proj:bbox": [
+    395000.0,
+    6132500.0,
+    397500.0,
+    6135000.0
+  ],
+  "proj:code": "EPSG:5845",
+  "proj:shape": [
+    2500,
+    2500
+  ],
+  "stac_collection": "mhm-61_3",
+  "stac_item": "613_39_2550",
+  "verified": "2026-10-07",
+  "metadata_url": "https://api.lantmateriet.se/stac-hojd/v1/collections/mhm-61_3/items/613_39_2550",
+  "observation_start": "2025-02-14T00:00:00Z",
+  "observation_end": "2025-02-14T00:00:00Z",
+  "note": "Covers pilot plus halo. Provider checksum absent: verify file size, raster header, coverage and local SHA receipt after authorized download."
+}

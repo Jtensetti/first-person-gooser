@@ -1,5 +1,7 @@
 # Gap och acceptans
 
+Uppdatering 2026-10-07: ortofotoimport med metrisk UV och hashkontroll är implementerad och syntetiskt testad; riktiga godkända bilder och oberoende visuell validering saknas fortfarande. Aktuella NVDB-data ska i första hand sökas via Datautbytesportalen. Se [leveransen](DELIVERY-2026-10-07.md) och [källkontrollen](SOURCE-UPDATE-2026-10-07.md); tabellen nedan bevarar föregående gapbaslinje.
+
 Prioriteringen är geografi → skala/höjd → siluetter → vegetation/mark → material → mikrodetaljer → flygning. En lyckad build är aldrig samma sak som godkänd rekonstruktion.
 
 | Prioritet | Gap | Nästa konkreta åtgärd | Acceptans / begränsning |

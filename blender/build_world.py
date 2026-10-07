@@ -246,10 +246,12 @@ def build(args):
     if bpy.app.version < (4, 5, 0):
         raise RuntimeError("Blender 4.5 or newer is required")
     world = Path(args.world).resolve()
-    manifest = json.loads((world / "manifest.json").read_text())
+    manifest = json.loads((world / "manifest.json").read_text(encoding="utf8"))
     if manifest["preview_only"] and not args.allow_preview:
         raise RuntimeError("Engineering preview: pass --allow-preview explicitly")
     out = Path(args.output).resolve()
+    if out.exists() and any(out.iterdir()):
+        raise RuntimeError("Blender output is not empty; choose a fresh directory")
     out.mkdir(parents=True, exist_ok=True)
     main = clean_collection()
     assets = bpy.data.collections.new("Goosen prototype assets")
@@ -281,6 +283,12 @@ def build(args):
         if hashlib.sha256(payload_path.read_bytes()).hexdigest() != entry["sha256"]:
             raise RuntimeError("Tile checksum mismatch")
         tile = json.loads(gzip.decompress(payload_path.read_bytes()))
+        texture_path = world / tile["ground_texture"]
+        if (
+            tile.get("ground_texture_info")
+            and hashlib.sha256(texture_path.read_bytes()).hexdigest() != tile["ground_texture_info"]["sha256"]
+        ):
+            raise RuntimeError("Ground texture checksum mismatch")
         collection = bpy.data.collections.new(entry["id"])
         main.children.link(collection)
         offset = Vector(tile["origin"]) - Vector(origin)
@@ -293,12 +301,21 @@ def build(args):
                 entry["id"] + "/" + record["id"],
                 record["mesh"],
                 collection,
-                ground if record["kind"] == "terrain" else material(record["material"]),
+                ground
+                if record["kind"] == "terrain"
+                or (
+                    record["kind"] == "field"
+                    and tile.get("ground_texture_info", {}).get("kind") == "orthophoto"
+                )
+                else material(record["material"]),
             )
-            if record["kind"] == "terrain":
+            if record["kind"] in ("terrain", "field"):
                 uv_ground(obj, entry["bounds"][2] - entry["bounds"][0])
             obj.location = offset
             obj["evidence"] = record.get("evidence", "derived")
+            for key in ("height_evidence", "roof_evidence", "crop_code", "crop_year"):
+                if key in record:
+                    obj[key] = record[key]
             obj["goosen_kind"] = record["kind"]
             export_objects.append(obj)
         for kind in sorted({p["asset"] for p in tile["instances"]}):

@@ -38,7 +38,7 @@ def main():
                         "DTM must be metric SWEREF99 TM, <=2 m; resampling does not increase native quality"
                     )
                 rec.update(native_resolution_m=max(r.res), surface_kind="DTM")
-        rec["path"] = str(path.resolve().relative_to(a.output.parent.resolve()))
+        rec["path"] = path.resolve().relative_to(a.output.parent.resolve()).as_posix()
         j["assets"][role] = [rec]
     j["purpose"] = "LM height data adopted; remaining geometric and visual quality gates still apply"
     write_json(a.output, j)

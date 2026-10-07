@@ -4,7 +4,7 @@ En reproducerbar **geodata → Blender → tile**-pipeline för en framtida flyg
 
 **Leverans 2026-10-06:** inventering av hela NBS-repot, kontrollerade källor, vald kilometer vid Smygehuk, fungerande Python-pipeline, Blender-byggare, Geometry Nodes-instancing, tre terräng-LOD, GLB-export och överföringsverktyg. Kedjan har körts med riktiga pilotpolygoner och raster i Blender 4.5.3 LTS. Detta är en verifierad teknisk grund, **inte en färdig fotorealistisk värld**. Lantmäteriets skyddade originaldata och kommunens återanvändningsvillkor återstår.
 
-**Börja med [körguiden inför imorgon](docs/TOMORROW.md).**
+**Uppdatering 2026-10-07:** kedjan är nu körd i Windows/Python 3.13 och Blender **5.2.2 LTS**. Windows-hashfel är rättat, säker datapaketsåterställning och ortofotoimport är implementerade, och offline-ombyggnad ger identiska tilehashar. Se [aktuell leverans och körguide](docs/DELIVERY-2026-10-07.md). [Tidigare körguide](docs/TOMORROW.md) finns kvar som bakgrund.
 
 ## Kör en första värld
 

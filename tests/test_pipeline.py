@@ -115,3 +115,43 @@ def test_duplicate_authoritative_sources_are_not_double_built(inputs, tmp_path):
     write_json(catalog, j)
     with pytest.raises(DataError, match="deduplicate"):
         prepare(c, catalog, tmp_path / "reject", True)
+
+
+def test_orthophoto_is_consumed_and_texture_tampering_fails_qa(inputs, tmp_path):
+    import rasterio
+
+    c, catalog = inputs
+    w, s, e, n = c["bounds"]
+    p = tmp_path / "ortho.tif"
+    with rasterio.open(
+        p,
+        "w",
+        driver="GTiff",
+        width=250,
+        height=250,
+        count=3,
+        dtype="uint8",
+        crs="EPSG:3006",
+        transform=from_origin(w, n, 1, 1),
+    ) as ds:
+        ds.write(np.full((3, 250, 250), 120, dtype="uint8"))
+    j = json.loads(catalog.read_text())
+    j["assets"]["orthophoto"] = [
+        {
+            **j["assets"]["landcover"][0],
+            "path": p.name,
+            "sha256": sha256(p),
+            "rgb_bands": [1, 2, 3],
+            "color_space": "sRGB",
+            "observation_year": 2025,
+        }
+    ]
+    write_json(catalog, j)
+    output = tmp_path / "with-ortho"
+    m = prepare(c, catalog, output, True)
+    tile = json.loads(gzip.decompress((output / m["tiles"][0]["file"]).read_bytes()))
+    assert tile["ground_texture_info"]["kind"] == "orthophoto"
+    assert not any("No licensed orthophoto" in g for g in m["gaps"])
+    assert audit_world(output)["structural_pass"]
+    (output / tile["ground_texture"]).write_bytes(b"tampered")
+    assert not audit_world(output)["structural_pass"]

@@ -1,6 +1,7 @@
 """Portable entry point: Python 3.11+, installed goosen, optional Blender 4.5+."""
 
 import argparse
+import re
 import shutil
 import subprocess
 import sys
@@ -19,11 +20,17 @@ def main():
     p.add_argument("--source", type=Path, default=Path("../nbs-sandbox-trelleborg"))
     p.add_argument("--blender", help="Optional full path to Blender executable")
     p.add_argument("--job", default="pilot")
+    p.add_argument("--catalog", type=Path, help="Replay frozen/restored inputs without network acquisition")
     p.add_argument("--osm", action="store_true", help="Explicitly admit ODbL fallback buildings/roads")
     a = p.parse_args()
+    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]{0,63}", a.job):
+        raise DataError("Job name must contain only letters, digits, hyphens and underscores")
     root = Path(__file__).resolve().parents[1]
     source = a.source.resolve()
-    if not source.exists():
+    if a.catalog:
+        if a.osm:
+            raise DataError("--catalog replays frozen inputs; do not combine with --osm")
+    elif not source.exists():
         # Existing signed-in Git/gh credential helper supplies private repo access.
         # No credentials, login or third-party source contents are copied into code.
         run(
@@ -43,21 +50,25 @@ def main():
     if output.exists():
         raise DataError("Build already exists: choose a new --job name")
     common = [sys.executable, "-m", "goosen.cli"]
-    run(
-        *common,
-        "bootstrap-preview",
-        "--repo",
-        source,
-        "--output",
-        root / "data" / a.job,
-        *(["--osm"] if a.osm else []),
-        cwd=root,
-    )
+    catalog = a.catalog.resolve() if a.catalog else root / "data" / a.job / "catalog.json"
+    if not a.catalog:
+        if catalog.exists():
+            raise DataError("Catalog exists; replay it with --catalog or choose a new job")
+        run(
+            *common,
+            "bootstrap-preview",
+            "--repo",
+            source,
+            "--output",
+            catalog.parent,
+            *(["--osm"] if a.osm else []),
+            cwd=root,
+        )
     run(
         *common,
         "prepare",
         "--catalog",
-        root / "data" / a.job / "catalog.json",
+        catalog,
         "--output",
         output,
         "--preview",

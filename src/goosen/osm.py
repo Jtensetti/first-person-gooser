@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 import xml.etree.ElementTree as ET
+import requests
 
 from shapely.geometry import Polygon, LineString, mapping
 from shapely.ops import polygonize_full, unary_union
@@ -21,7 +22,7 @@ def metres(value):
 
 def parse_osm(raw):
     root = ET.fromstring(raw)
-    if root.find("error") is not None:
+    if root.tag != "osm" or root.find("error") is not None or root.find("remark") is not None:
         raise DataError("OSM error response")
     nodes = {n.attrib["id"]: (float(n.attrib["lon"]), float(n.attrib["lat"])) for n in root.findall("node")}
     ways = {}
@@ -143,6 +144,27 @@ def complete_relations(raw, fetch):
     return ET.tostring(root, encoding="utf-8", xml_declaration=True)
 
 
+def overpass_extract(s, bbox):
+    """Bounded read-only fallback with complete way/relation member recursion."""
+    w, south, e, n = bbox
+    region = f"({south},{w},{n},{e})"
+    query = (
+        "[out:xml][timeout:60][maxsize:32000000];("
+        f"way[building]{region};relation[building][type=multipolygon]{region};"
+        f"way[highway]{region};way[natural=water]{region};"
+        f"relation[natural=water][type=multipolygon]{region};);(._;>>;);out meta;"
+    )
+    url = "https://overpass-api.de/api/interpreter"
+    response = s.get(url, params={"data": query}, timeout=(15, 90))
+    response.raise_for_status()
+    if len(response.content) > 32_000_000:
+        raise DataError("OSM extract exceeds byte budget")
+    root = ET.fromstring(response.content)
+    if root.tag != "osm" or root.find("remark") is not None or root.find("error") is not None:
+        raise DataError("Overpass returned an incomplete or erroneous extract")
+    return response.content, url
+
+
 def fetch_osm(c, out):
     from pathlib import Path
 
@@ -153,9 +175,14 @@ def fetch_osm(c, out):
         raise DataError("OSM API only used for the small pilot; use PBF extract for scaling")
     url = "https://api.openstreetmap.org/api/0.6/map"
     with session() as s:
-        r = s.get(url, params={"bbox": ",".join(map(str, bbox))}, timeout=(15, 90))
-        r.raise_for_status()
-        raw = r.content
+        try:
+            r = s.get(url, params={"bbox": ",".join(map(str, bbox))}, timeout=(15, 90))
+            r.raise_for_status()
+            raw = r.content
+        except requests.RequestException:
+            raw, url = overpass_extract(s, bbox)
+        if len(raw) > 32_000_000:
+            raise DataError("OSM extract exceeds byte budget")
 
         def fetch_relation(rid):
             r = s.get("https://api.openstreetmap.org/api/0.6/relation/" + rid + "/full", timeout=(15, 90))

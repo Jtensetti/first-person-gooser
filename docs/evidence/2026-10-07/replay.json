@@ -1,0 +1,23 @@
+{
+  "identical_tile_hashes": true,
+  "tiles": [
+    {
+      "id": "E395500_N6133500_500",
+      "sha256": "bd265e482b6f50550bd8e683eaee64a58cc3f02325ff3138422d15113eafdf31"
+    },
+    {
+      "id": "E396000_N6133500_500",
+      "sha256": "9011321927bd12b21191faf04af1bbacd80a656f8d4fc502d4be88c78565e655"
+    },
+    {
+      "id": "E395500_N6134000_500",
+      "sha256": "e9ae5e73c13b0f453fca018396467b06cbe916918a531c9b736ad8e2ed11d946"
+    },
+    {
+      "id": "E396000_N6134000_500",
+      "sha256": "ca300a551fcbfddadaaa7fdbb99d1c046a793b6739b2ce6d0e80f8f4f483db61"
+    }
+  ],
+  "bundle_files": 22,
+  "note": "Restored bundle rebuilt without network acquisition; matching tool environment."
+}

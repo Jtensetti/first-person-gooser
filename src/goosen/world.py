@@ -20,6 +20,7 @@ from .core import DataError, read_json, sha256, stable_seed, tiles, validate_ass
 from .rasters import warp_nodes, mesh_payload
 from .vectors import read_features, polygon_mesh, building_mesh, drape_mesh, clip_terrain_water
 from .lidar import load_points, derive_building, derive_canopy
+from .imagery import orthophoto_texture
 
 FOREST_CODES = [111, 112, 113, 114, 115, 116, 117, 121, 122, 123, 124, 125, 126, 127]
 # Artistic seasonal defaults, never measurements or claimed farm observations.
@@ -451,7 +452,16 @@ def _prepare(c, catalog_path, output, preview):
             height_sampler=canopy_sampler,
         )
         texture = tile["id"] + "-ground.png"
-        natural_texture(land.tile(tile["bounds"], 10), output / texture)
+        if assets.get("orthophoto"):
+            texture_info = orthophoto_texture(
+                assets["orthophoto"],
+                tile["bounds"],
+                output / texture,
+                c.get("orthophoto_pixel_m", 0.5),
+            )
+        else:
+            natural_texture(land.tile(tile["bounds"], 10), output / texture)
+            texture_info = {"kind": "modeled_nmd_palette", "sha256": sha256(output / texture)}
         package = {
             "schema": 1,
             "tile": tile,
@@ -459,6 +469,7 @@ def _prepare(c, catalog_path, output, preview):
             "objects": objects,
             "instances": instances,
             "ground_texture": texture,
+            "ground_texture_info": texture_info,
             "preview_only": preview,
             "vegetation_note": "Procedural prototype instances; modeled positions, species and height unless replaced with approved evidence.",
         }

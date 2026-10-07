@@ -1,0 +1,8 @@
+{
+  "tests_passed": 31,
+  "failed": 0,
+  "command": "python -m pytest -q",
+  "lint": "ruff check: pass",
+  "format": "ruff format --check: pass",
+  "scope": "Unit/integration including synthetic imagery, source CRLF integrity, bundle replay, real pilot QA separately"
+}
