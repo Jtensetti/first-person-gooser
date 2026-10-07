@@ -108,28 +108,35 @@ def polygon_mesh(geom, height, origin, z_offset=0):
     return {"vertices": verts, "faces": faces}
 
 
-def drape_mesh(geom, grid, origin, offset=0.03, spacing=4):
-    """Triangulate each grid-clipped polygon to preserve sampled terrain relief."""
-    from shapely.geometry import box
+def drape_mesh(geom, grid, origin, offset=0.03):
+    """Clip to every terrain triangle so overlay faces cannot cut through slopes."""
+    import shapely
 
-    pieces = []
+    vertices, faces = [], []
     for poly in polygons(geom):
         w, s, e, n = poly.bounds
-        # Grid-aligned patches keep long road/field edges from cutting through hills.
-        if (e - w) * (n - s) / spacing**2 > 250000:
+        col0 = max(0, math.floor((w - grid.west) / grid.step))
+        col1 = min(grid.values.shape[1] - 1, math.ceil((e - grid.west) / grid.step))
+        row0 = max(0, math.floor((grid.north - n) / grid.step))
+        row1 = min(grid.values.shape[0] - 1, math.ceil((grid.north - s) / grid.step))
+        if (col1 - col0) * (row1 - row0) > 250000:
             raise DataError("Surface mesh exceeds budget")
-        for y in np.arange(math.floor(s / spacing) * spacing, n, spacing):
-            for x in np.arange(math.floor(w / spacing) * spacing, e, spacing):
-                patch = poly.intersection(box(x, y, x + spacing, y + spacing))
-                pieces.extend(polygons(patch))
-    # Disjoint grid patches may share boundaries; triangulate separately.
-    vertices = []
-    faces = []
-    for piece in pieces:
-        part = polygon_mesh(piece, lambda x, y: float(grid.sample(x, y)) + offset, origin)
-        start = len(vertices)
-        vertices.extend(part["vertices"])
-        faces.extend([[v + start for v in f] for f in part["faces"]])
+        col, row = np.meshgrid(np.arange(col0, col1), np.arange(row0, row1))
+        tl = np.column_stack((grid.west + col.ravel() * grid.step, grid.north - row.ravel() * grid.step))
+        if not len(tl):
+            continue
+        bl, br, tr = tl + [0, -grid.step], tl + [grid.step, -grid.step], tl + [grid.step, 0]
+        triangles = shapely.polygons(
+            np.concatenate((np.stack((tl, bl, br), axis=1), np.stack((tl, br, tr), axis=1)))
+        )
+        patches = shapely.intersection(triangles[shapely.intersects(triangles, poly)], poly)
+        for patch in patches:
+            if patch.area <= 1e-10:
+                continue
+            part = polygon_mesh(patch, lambda x, y: float(grid.sample_mesh(x, y)) + offset, origin)
+            start = len(vertices)
+            vertices.extend(part["vertices"])
+            faces.extend([[v + start for v in f] for f in part["faces"]])
     return {"vertices": vertices, "faces": faces}
 
 
@@ -188,7 +195,7 @@ def clip_terrain_water(payload, grid, water, origin):
     result = {"vertices": payload["vertices"], "faces": kept}
     for index in np.flatnonzero(wet & ~submerged):
         dry = cells[index].difference(water)
-        patch = polygon_mesh(dry, lambda x, y: float(grid.sample(x, y)), origin)
+        patch = polygon_mesh(dry, lambda x, y: float(grid.sample_mesh(x, y)), origin)
         start = len(result["vertices"])
         result["vertices"].extend(patch["vertices"])
         result["faces"].extend([[start + i for i in f] for f in patch["faces"]])

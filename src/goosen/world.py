@@ -591,7 +591,7 @@ def _prepare(c, catalog_path, output, preview):
                         "material": kind,
                         "evidence": "derived",
                         "material_evidence": "modeled",
-                        "mesh": drape_mesh(geom, terrain, origin, offset=0.02, spacing=4),
+                        "mesh": drape_mesh(geom, terrain, origin, offset=0.02),
                     }
                 )
         if sea is not None:
@@ -604,7 +604,7 @@ def _prepare(c, catalog_path, output, preview):
                         "material": "shore",
                         "evidence": "modeled",
                         "model_rule": "4m_landward_coast_material_band",
-                        "mesh": drape_mesh(shore, terrain, origin, offset=0.02, spacing=3),
+                        "mesh": drape_mesh(shore, terrain, origin, offset=0.02),
                     }
                 )
         for f in roads:
@@ -624,7 +624,7 @@ def _prepare(c, catalog_path, output, preview):
                         or f["properties"].get("highway") in ("path", "track", "footway")
                         else "asphalt",
                         "evidence": "modeled" if f["modeled_width"] else "derived",
-                        "mesh": drape_mesh(geom, terrain, origin, spacing=8),
+                        "mesh": drape_mesh(geom, terrain, origin),
                     }
                 )
             if (
@@ -651,7 +651,7 @@ def _prepare(c, catalog_path, output, preview):
                             "material": "road_paint",
                             "evidence": "modeled",
                             "model_rule": "generic_dashed_centerline_not_surveyed",
-                            "mesh": drape_mesh(stripe, terrain, origin, offset=0.042, spacing=3),
+                            "mesh": drape_mesh(stripe, terrain, origin, offset=0.042),
                         }
                     )
         for water_id, water_geometry, level, proof in water_surfaces:
@@ -679,7 +679,7 @@ def _prepare(c, catalog_path, output, preview):
                         "crop_code": f["crop_code"],
                         "crop_year": c["crop_year"],
                         "evidence": "derived",
-                        "mesh": drape_mesh(geom, terrain, origin, offset=0.015, spacing=20),
+                        "mesh": drape_mesh(geom, terrain, origin, offset=0.015),
                     }
                 )
                 if f["crop_kind"] != "unknown":

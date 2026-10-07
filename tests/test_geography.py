@@ -61,6 +61,26 @@ def test_zip_disguised_as_tiff_supported(tmp_path):
     np.testing.assert_allclose(warp_nodes([z], [0, 0, 2, 2], 1).values, 1)
 
 
+def test_surface_clears_nonplanar_terrain_including_clipped_edges_and_hole():
+    from goosen.vectors import drape_mesh
+    from shapely.geometry import box, Polygon
+
+    # A saddle exposes bilinear-vs-triangle and mismatched diagonal errors.
+    g = Grid(np.array([[0.0, 4.0, 0.0], [3.0, 0.0, 5.0], [0.0, 6.0, 0.0]]), 0, 4, 2)
+    geom = box(0.15, 0.2, 3.8, 3.9).difference(box(0.8, 0.9, 1.3, 1.4))
+    mesh = drape_mesh(geom, g, [0, 0, 0], offset=0.03)
+    vertices = np.array(mesh["vertices"])
+    area = 0
+    for face in mesh["faces"]:
+        triangle = vertices[face]
+        area += Polygon(triangle[:, :2]).area
+        # Interior points, not only vertices: every whole face must clear terrain.
+        for weights in ([1 / 3] * 3, [0.1, 0.2, 0.7], [0.6, 0.3, 0.1]):
+            p = np.array(weights) @ triangle
+            assert p[2] - float(g.sample_mesh(*p[:2])) == pytest.approx(0.03, abs=1e-10)
+    assert area == pytest.approx(geom.area)
+
+
 def test_nodata_never_becomes_land_or_poison_zero_weight_neighbor():
     g = Grid(np.array([[1.0, np.nan], [3.0, 4.0]]), 0, 1, 1)
     assert float(g.sample(0, 1)) == 1

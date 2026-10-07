@@ -128,7 +128,7 @@
           "code": "UNUSED_OBJECT",
           "message": "This object may be unused.",
           "severity": 2,
-          "pointer": "/accessors/228"
+          "pointer": "/accessors/229"
         },
         {
           "code": "IMAGE_NPOT_DIMENSIONS",

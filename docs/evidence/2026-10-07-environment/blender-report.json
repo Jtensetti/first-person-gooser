@@ -1,30 +1,30 @@
 {
   "blender": "5.2.2 LTS",
-  "elapsed_seconds": 21.61,
+  "elapsed_seconds": 30.91,
   "tiles": [
     {
       "tile": "E395500_N6133500_500",
       "mesh_objects": 186,
       "instances": 5453,
-      "triangles": 107093
+      "triangles": 176535
     },
     {
       "tile": "E396000_N6133500_500",
       "mesh_objects": 72,
       "instances": 1559,
-      "triangles": 91173
+      "triangles": 116757
     },
     {
       "tile": "E395500_N6134000_500",
       "mesh_objects": 175,
       "instances": 8904,
-      "triangles": 130969
+      "triangles": 231656
     },
     {
       "tile": "E396000_N6134000_500",
       "mesh_objects": 814,
       "instances": 2145,
-      "triangles": 146939
+      "triangles": 176734
     }
   ],
   "preview_only": true,

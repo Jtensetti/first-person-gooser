@@ -55,6 +55,20 @@ class Grid:
             np.nan,
         )
 
+    def sample_mesh(self, x, y):
+        """Height on the actual TL–BR triangulated terrain, not a bilinear patch."""
+        col = (np.asarray(x) - self.west) / self.step
+        row = (self.north - np.asarray(y)) / self.step
+        inside = (col >= 0) & (col <= self.values.shape[1] - 1)
+        inside &= (row >= 0) & (row <= self.values.shape[0] - 1)
+        j = np.clip(np.floor(col).astype(int), 0, self.values.shape[1] - 2)
+        i = np.clip(np.floor(row).astype(int), 0, self.values.shape[0] - 2)
+        u, v = col - j, row - i
+        a, b = self.values[i, j], self.values[i, j + 1]
+        c, d = self.values[i + 1, j], self.values[i + 1, j + 1]
+        z = np.where(v >= u, a * (1 - v) + c * (v - u) + d * u, a * (1 - u) + b * (u - v) + d * v)
+        return np.where(inside, z, np.nan)
+
     def tile(self, bounds, step):
         w, s, e, n = bounds
         if step % self.step:
@@ -144,5 +158,6 @@ def mesh_payload(grid, origin, z_offset=0):
     tr = tl + 1
     bl = tl + w
     br = bl + 1
-    faces = np.column_stack((tl, bl, br, tr))
+    # Explicit shared diagonal makes overlays and exported terrain agree exactly.
+    faces = np.concatenate((np.column_stack((tl, bl, br)), np.column_stack((tl, br, tr))))
     return {"vertices": vertices.astype(float).tolist(), "faces": faces.astype(int).tolist()}
