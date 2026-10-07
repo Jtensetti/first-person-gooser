@@ -1,5 +1,7 @@
 # GÅSEN — Trelleborg på riktigt
 
+**Laseruppdatering 2026-10-07:** verklig laserdata är importerad. 265 byggnadshöjder härleds, 12 tak klarar enkelplansanpassning och vegetation får lokala höjdprover. [Resultat och begränsningar](docs/LASER-2026-10-07.md). Äldre statusnoteringar nedan beskriver tidigare lägen.
+
 En reproducerbar **geodata → Blender → tile**-pipeline för en framtida flygupplevelse från en gåsrygg. Verkliga data bestämmer makrogeometrin; procedurgenerering tillför detaljer. Ingen GIS-panel byggs in i upplevelsen.
 
 **Öppna data 2026-10-07:** piloten använder nu **1 m markmodell i RH2000**, hämtad utan konto från Mapterhorns Lantmäteriet-arkiv, samt Sentinel-2 RGB för markfärg. 212 enkla byggnader har modellerade sadeltak. Scenen är öppnad och sparad i Blender 5.2.2 med materialvisning. [Aktuellt resultat och ombyggnad](docs/OPEN-DATA-2026-10-07.md). 47 tester passerar. Äldre leveransnoteringar nedan beskriver tidigare underlag.

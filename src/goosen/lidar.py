@@ -76,12 +76,14 @@ def derive_building(geometry, points, terrain):
     }
 
 
-def derive_canopy(points, terrain, landcover, step=2):
+def derive_canopy(points, terrain, landcover, step=2, exclusion=None):
     ground = terrain.sample(points[:, 0], points[:, 1])
     height = points[:, 2] - ground
     code = landcover.nearest(points[:, 0], points[:, 1])
     forest = np.isin(code, [111, 112, 113, 114, 115, 116, 117, 121, 122, 123, 124, 125, 126, 127])
     valid = forest & np.isfinite(height) & (height > 2) & (height < 60) & np.isin(points[:, 3], [1, 3, 4, 5])
+    if exclusion is not None and not exclusion.is_empty:
+        valid &= ~contains_xy(exclusion, points[:, 0], points[:, 1])
     p = points[valid]
     h = height[valid]
     # Heights are estimates from returns, not surveyed tree identities.

@@ -208,7 +208,9 @@ def _prepare(c, catalog_path, output, preview):
     if assets.get("lidar"):
         if vertical != "EPSG:5613" or any(a.get("vertical_crs") != "EPSG:5613" for _, a in assets["lidar"]):
             raise DataError("LiDAR and terrain must both be RH2000; no implicit Z transform")
-        points = np.concatenate([load_points(p, c["bounds"]) for p, a in assets["lidar"]])
+        w, s, e, n = c["bounds"]
+        h = c["halo_m"]
+        points = np.concatenate([load_points(p, [w - h, s - h, e + h, n + h]) for p, a in assets["lidar"]])
     else:
         gaps.append("No LiDAR or approved municipal 3D model; building heights unresolved where absent")
     # Cells on the terrain lattice, not nodata treated as zero.
@@ -330,7 +332,14 @@ def _prepare(c, catalog_path, output, preview):
         )
     canopy_sampler = None
     if points is not None:
-        canopy = derive_canopy(points, terrain, land)
+        canopy = derive_canopy(
+            points,
+            terrain,
+            land,
+            exclusion=unary_union([f["geometry"] for f in buildings] + [f["geometry"] for f in roads]).buffer(
+                0.5
+            ),
+        )
         if canopy:
             from scipy.spatial import cKDTree
 
@@ -395,6 +404,24 @@ def _prepare(c, catalog_path, output, preview):
         "acceptance_passed": False,
         "note": "Build completion is not visual or geographic acceptance.",
     }
+    if points is not None:
+        ground_points = points[points[:, 3] == 2]
+        residual = ground_points[:, 2] - terrain.sample(ground_points[:, 0], ground_points[:, 1])
+        residual = residual[np.isfinite(residual)]
+        manifest["lidar_qa"] = {
+            "usable_points": len(points),
+            "ground_comparison": {
+                "samples": len(residual),
+                "median_m": float(np.median(residual)) if len(residual) else None,
+                "p95_absolute_m": float(np.percentile(np.abs(residual), 95)) if len(residual) else None,
+                "note": "Consistency comparison against the DTM, not independent survey accuracy.",
+            },
+            "buildings": [{"id": f["id"], **f.get("lidar_qa", {})} for f in buildings],
+            "derived_heights": sum(f.get("lidar_qa", {}).get("status") == "derived" for f in buildings),
+            "fitted_single_planes": sum(f["roof"] is not None for f in buildings),
+            "canopy_samples": len(canopy),
+            "note": "Unresolved roofs retain modeled preview geometry. Roof/tree confusion requires visual QA.",
+        }
     forest_mask = np.isin(land.values, FOREST_CODES).astype("uint8")
     transform = from_origin(land.west - 5, land.north + 5, 10, 10)
     forest = unary_union(

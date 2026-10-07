@@ -131,6 +131,10 @@ def test_lidar_roof_fit_requires_spatial_support_and_normalizes_ground():
     canopy = derive_canopy(points, terrain, Grid(np.full((31, 31), 115.0), 0, 30, 1))
     assert len(canopy) > 0
     assert max(p["height_m"] for p in canopy) == pytest.approx(7.8)
+    assert (
+        derive_canopy(points, terrain, Grid(np.full((31, 31), 115.0), 0, 30, 1), exclusion=box(0, 0, 20, 20))
+        == []
+    )
 
 
 def test_terrain_is_cut_at_real_water_edge_without_double_surface():

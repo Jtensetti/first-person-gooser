@@ -4,6 +4,8 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+import laspy
+from pyproj import CRS
 from shapely.geometry import box, mapping, Point
 
 from goosen.core import DataError, write_json, sha256, load_config
@@ -11,6 +13,44 @@ from goosen.world import prepare
 from goosen.qa import audit_world
 from test_geography import raster
 from rasterio.transform import from_origin
+
+
+def test_laser_world_retains_halo_and_reports_height_evidence(inputs, tmp_path):
+    c, catalog = inputs
+    w, s, _, _ = c["bounds"]
+    h = laspy.LasHeader(point_format=6, version="1.4")
+    h.add_crs(CRS(5845))
+    p = laspy.LasData(h)
+    x, y = np.meshgrid(np.arange(101, 110), np.arange(101, 110))
+    p.x = np.r_[w + x.ravel(), w - 2]
+    p.y = np.r_[s + y.ravel(), s - 2]
+    p.z = np.r_[15 + 0.1 * (x.ravel() - 101), 8]
+    p.classification = np.r_[np.ones(x.size, dtype=np.uint8), 2]
+    path = tmp_path / "pilot.laz"
+    p.write(path)
+    data = json.loads(catalog.read_text())
+    data["assets"]["lidar"] = [
+        {
+            "path": path.name,
+            "sha256": sha256(path),
+            "source": "synthetic fixture",
+            "license": "test",
+            "license_evidence": "test",
+            "use_status": "open",
+            "evidence": "modeled",
+            "horizontal_crs": "EPSG:3006",
+            "vertical_crs": "EPSG:5613",
+        }
+    ]
+    write_json(catalog, data)
+    result = prepare(c, catalog, tmp_path / "laser-world", True)
+    qa = result["lidar_qa"]
+    assert qa["usable_points"] == 82
+    assert qa["ground_comparison"]["samples"] == 1
+    assert qa["ground_comparison"]["median_m"] == pytest.approx(0)
+    assert qa["derived_heights"] == 1
+    assert qa["fitted_single_planes"] == 1
+    assert result["acceptance_passed"] is False
 
 
 @pytest.fixture
