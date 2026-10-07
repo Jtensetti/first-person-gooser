@@ -1,6 +1,6 @@
 # GÅSEN — Trelleborg på riktigt
 
-Senaste miljöpasset: [laserbaserade sadeltak, detaljerade material och vegetation](docs/ENVIRONMENT-2026-10-07.md). 255 byggnader i pilotrutan, 173 med godkänd laseranpassning för tak. 58 tester och fem validerade GLB-exporter.
+Senaste miljöpasset: [laserbaserade sadeltak, detaljerade material och vegetation](docs/ENVIRONMENT-2026-10-07.md). 255 byggnader i pilotrutan, 173 med godkänd laseranpassning för tak. 59 tester och fem validerade GLB-exporter.
 
 **Laseruppdatering 2026-10-07:** verklig laserdata är importerad. 265 byggnadshöjder härleds, 12 tak klarar enkelplansanpassning och vegetation får lokala höjdprover. [Resultat och begränsningar](docs/LASER-2026-10-07.md). Äldre statusnoteringar nedan beskriver tidigare lägen.
 
