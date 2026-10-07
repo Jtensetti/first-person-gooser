@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "id": "smygehuk-open-data",
+  "name": "Smygehuk – hamnen, västra Smygehamn och åkrarna norr om väg 9",
+  "horizontal_crs": "EPSG:3006",
+  "vertical_crs": "EPSG:5613",
+  "bounds": [
+    395500,
+    6133500,
+    396500,
+    6134500
+  ],
+  "tile_size_m": 500,
+  "terrain_step_m": 2,
+  "lod_steps_m": [
+    2,
+    4,
+    10
+  ],
+  "halo_m": 30,
+  "seed": 1287,
+  "crop_year": 2025,
+  "scene_date": "2025-07-15T18:00:00+02:00",
+  "default_building_height_m": 6,
+  "default_road_width_m": 5,
+  "tree_spacing_m": 8,
+  "crop_spacing_m": 1.5,
+  "crop_near_radius_m": 60,
+  "max_instances_per_tile": 15000,
+  "max_terrain_triangles_per_tile": 150000,
+  "preview_only": true,
+  "crop_codebook": "crops-2025.json",
+  "modeled_architecture": true
+}

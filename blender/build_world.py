@@ -35,6 +35,11 @@ COLORS = {
     "potato": (0.10, 0.23, 0.045, 1),
     "flower_mix": (0.24, 0.28, 0.09, 1),
     "bark": (0.12, 0.08, 0.047, 1),
+    "roof_clay": (0.26, 0.065, 0.028, 1),
+    "roof_slate": (0.065, 0.073, 0.08, 1),
+    "plaster_warm": (0.52, 0.43, 0.30, 1),
+    "brick_ochre": (0.33, 0.20, 0.10, 1),
+    "plaster_light": (0.66, 0.63, 0.53, 1),
 }
 
 
@@ -45,6 +50,16 @@ def material(name, texture=None):
     bsdf = mat.node_tree.nodes.get("Principled BSDF")
     bsdf.inputs["Base Color"].default_value = mat.diffuse_color
     bsdf.inputs["Roughness"].default_value = 0.87
+    if name.startswith(("roof_", "plaster_", "brick_")):
+        noise = mat.node_tree.nodes.new("ShaderNodeTexNoise")
+        coord = mat.node_tree.nodes.new("ShaderNodeTexCoord")
+        noise.inputs["Scale"].default_value = 3 if name.startswith("roof_") else 6
+        bump = mat.node_tree.nodes.new("ShaderNodeBump")
+        bump.inputs["Strength"].default_value = 0.18
+        bump.inputs["Distance"].default_value = 0.015
+        mat.node_tree.links.new(coord.outputs["Object"], noise.inputs["Vector"])
+        mat.node_tree.links.new(noise.outputs["Fac"], bump.inputs["Height"])
+        mat.node_tree.links.new(bump.outputs["Normal"], bsdf.inputs["Normal"])
     if name == "water":
         bsdf.inputs["Roughness"].default_value = 0.17
         bsdf.inputs["Metallic"].default_value = 0.1
@@ -305,7 +320,7 @@ def build(args):
                 if record["kind"] == "terrain"
                 or (
                     record["kind"] == "field"
-                    and tile.get("ground_texture_info", {}).get("kind") == "orthophoto"
+                    and tile.get("ground_texture_info", {}).get("kind") in ("orthophoto", "satellite_rgb")
                 )
                 else material(record["material"]),
             )
@@ -318,6 +333,8 @@ def build(args):
                 "roof_evidence",
                 "boundary_evidence",
                 "level_evidence",
+                "material_evidence",
+                "model_rule",
                 "crop_code",
                 "crop_year",
             ):
@@ -369,6 +386,16 @@ def build(args):
         for obj in objects:
             obj.hide_render = True
             obj.hide_set(True)
+    # Persist a useful first view when the user opens a background-built scene.
+    for screen in bpy.data.screens:
+        for area in screen.areas:
+            if area.type == "VIEW_3D":
+                space = area.spaces.active
+                space.clip_end = 20000
+                space.overlay.show_overlays = False
+                space.shading.type = "MATERIAL"
+                space.region_3d.view_perspective = "CAMERA"
+                space.region_3d.view_camera_zoom = 10
     bpy.ops.wm.save_as_mainfile(filepath=str(out / "goosen-pilot.blend"))
     if args.render:
         scene.render.filepath = str(out / "inspection.png")

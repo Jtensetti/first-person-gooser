@@ -2,6 +2,8 @@
 
 En reproducerbar **geodata → Blender → tile**-pipeline för en framtida flygupplevelse från en gåsrygg. Verkliga data bestämmer makrogeometrin; procedurgenerering tillför detaljer. Ingen GIS-panel byggs in i upplevelsen.
 
+**Öppna data 2026-10-07:** piloten använder nu **1 m markmodell i RH2000**, hämtad utan konto från Mapterhorns Lantmäteriet-arkiv, samt Sentinel-2 RGB för markfärg. 212 enkla byggnader har modellerade sadeltak. Scenen är öppnad och sparad i Blender 5.2.2 med materialvisning. [Aktuellt resultat och ombyggnad](docs/OPEN-DATA-2026-10-07.md). 47 tester passerar. Äldre leveransnoteringar nedan beskriver tidigare underlag.
+
 **Leverans 2026-10-06:** inventering av hela NBS-repot, kontrollerade källor, vald kilometer vid Smygehuk, fungerande Python-pipeline, Blender-byggare, Geometry Nodes-instancing, tre terräng-LOD, GLB-export och överföringsverktyg. Kedjan har körts med riktiga pilotpolygoner och raster i Blender 4.5.3 LTS. Detta är en verifierad teknisk grund, **inte en färdig fotorealistisk värld**. Lantmäteriets skyddade originaldata och kommunens återanvändningsvillkor återstår.
 
 **Uppdatering 2026-10-07:** kedjan är nu körd i Windows/Python 3.13 och Blender **5.2.2 LTS**. Windows-hashfel är rättat, säker datapaketsåterställning och ortofotoimport är implementerade, och offline-ombyggnad ger identiska tilehashar. Se [aktuell leverans och körguide](docs/DELIVERY-2026-10-07.md). [Tidigare körguide](docs/TOMORROW.md) finns kvar som bakgrund.

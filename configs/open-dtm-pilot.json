@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "source": "https://download.mapterhorn.com/sources/se.tar",
+  "archive_bytes": 397607925760,
+  "license": "CC0-1.0",
+  "license_evidence": "https://github.com/mapterhorn/mapterhorn/blob/main/source-catalog/se/metadata.json",
+  "source_processing": "https://github.com/mapterhorn/mapterhorn/blob/main/pipelines/source_to_cog.py",
+  "members": [
+    {
+      "name": "LICENSE.pdf",
+      "header_offset": 1024,
+      "bytes": 153131,
+      "sha256": "4350ce95f55ed9c2ab894c15fab11e6c1aca4e008f980fd8ed1c4952fb99d58d"
+    },
+    {
+      "name": "metadata.json",
+      "header_offset": 156160,
+      "bytes": 213,
+      "sha256": "cb3a01a4884f0c07bb50d5574e6a05e000f4cd2b414bfbe3481db818981aba09"
+    },
+    {
+      "name": "files/61325_3950_25.tif",
+      "header_offset": 26032128,
+      "bytes": 2224726,
+      "sha256": "3bd113de0716359a988d20206c2529c535ae505a0c369b3353206f29cc634cea"
+    }
+  ]
+}

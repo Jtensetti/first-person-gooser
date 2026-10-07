@@ -65,3 +65,14 @@ def test_coverage_and_band_semantics_are_not_guessed(tmp_path):
             tmp_path / "bad.png",
             1,
         )
+
+
+def test_satellite_keeps_native_resolution_and_identity(tmp_path):
+    p, record = fixture(tmp_path)
+    record["native_resolution_m"] = 1
+    bounds = [395500, 6133500, 395504, 6133504]
+    info = orthophoto_texture([(p, record)], bounds, tmp_path / "sat.png", 1, "satellite_rgb")
+    assert info["kind"] == "satellite_rgb"
+    assert info["pixel_m"] == [1, 1]
+    with pytest.raises(DataError, match="finer pixel"):
+        orthophoto_texture([(p, record)], bounds, tmp_path / "bad.png", 0.5, "satellite_rgb")

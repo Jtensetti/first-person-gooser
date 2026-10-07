@@ -23,6 +23,7 @@ from .vectors import read_features, polygon_mesh, building_mesh, drape_mesh, cli
 from .lidar import load_points, derive_building, derive_canopy
 from .imagery import orthophoto_texture
 from .coast import load_coast, shoreline_height_check
+from .architecture import modeled_gable
 
 FOREST_CODES = [111, 112, 113, 114, 115, 116, 117, 121, 122, 123, 124, 125, 126, 127]
 # Artistic seasonal defaults, never measurements or claimed farm observations.
@@ -195,7 +196,14 @@ def _prepare(c, catalog_path, output, preview):
         if f["properties"].get("arslager") != c["crop_year"]:
             raise DataError("Mixed parcel years")
     if not assets.get("orthophoto"):
-        gaps.append("No licensed orthophoto; procedural base materials only")
+        gaps.append(
+            "No licensed orthophoto; "
+            + (
+                "10 m satellite RGB used for ground only"
+                if assets.get("satellite_rgb")
+                else "procedural base materials only"
+            )
+        )
     points = None
     if assets.get("lidar"):
         if vertical != "EPSG:5613" or any(a.get("vertical_crs") != "EPSG:5613" for _, a in assets["lidar"]):
@@ -317,7 +325,9 @@ def _prepare(c, catalog_path, output, preview):
         buildings.append({**f, "height": float(height), "roof": roof, "height_evidence": proof})
     unresolved_roofs = sum(f["roof"] is None for f in buildings)
     if unresolved_roofs:
-        gaps.append(f"{unresolved_roofs} roofs use a modeled flat volume; roof structure unresolved")
+        gaps.append(
+            f"{unresolved_roofs} roofs lack measured geometry; any generated gables/materials are modeled"
+        )
     canopy_sampler = None
     if points is not None:
         canopy = derive_canopy(points, terrain, land)
@@ -413,6 +423,30 @@ def _prepare(c, catalog_path, output, preview):
             anchor = inside.representative_point()
             if not (w <= anchor.x < e and s <= anchor.y < n):
                 continue
+            model = (
+                modeled_gable(f["geometry"], terrain, f["height"], origin)
+                if preview and c.get("modeled_architecture") and f["roof"] is None
+                else None
+            )
+            if model:
+                palette = stable_seed(c["seed"], f["id"])
+                for part in ("walls", "roof"):
+                    objects.append(
+                        {
+                            "id": "building-" + f["id"] + "-" + part,
+                            "kind": "building",
+                            "material": ["plaster_warm", "brick_ochre", "plaster_light"][palette % 3]
+                            if part == "walls"
+                            else ("roof_clay" if palette % 4 else "roof_slate"),
+                            "evidence": "derived",
+                            "height_evidence": f["height_evidence"],
+                            "roof_evidence": "modeled",
+                            "material_evidence": "modeled",
+                            "model_rule": model["rule"],
+                            "mesh": model[part],
+                        }
+                    )
+                continue
             objects.append(
                 {
                     "id": "building-" + f["id"],
@@ -498,6 +532,10 @@ def _prepare(c, catalog_path, output, preview):
                 tile["bounds"],
                 output / texture,
                 c.get("orthophoto_pixel_m", 0.5),
+            )
+        elif assets.get("satellite_rgb"):
+            texture_info = orthophoto_texture(
+                assets["satellite_rgb"], tile["bounds"], output / texture, resolution=10, kind="satellite_rgb"
             )
         else:
             natural_texture(land.tile(tile["bounds"], 10), output / texture, sea)

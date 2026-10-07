@@ -1,12 +1,14 @@
 # Gap och acceptans
 
+**Senaste uppdateringen:** [öppen 1 m DTM är hämtad och använd](OPEN-DATA-2026-10-07.md). Sentinel-2 ger markfärg; 212 modellerade sadeltak förbättrar siluetten. Verkliga tak, LiDAR och högupplöst ortofoto saknas fortfarande.
+
 Uppdatering 2026-10-07: ortofotoimport med metrisk UV och hashkontroll är implementerad och syntetiskt testad; riktiga godkända bilder och oberoende visuell validering saknas fortfarande. OSM-kust är nu importerad, topologiskt kontrollerad och renderad. Aktuella NVDB-data ska i första hand sökas via Datautbytesportalen. Se [leveransen](DELIVERY-2026-10-07.md), [kustuppdateringen](COAST-2026-10-07.md) och [källkontrollen](SOURCE-UPDATE-2026-10-07.md).
 
 Prioriteringen är geografi → skala/höjd → siluetter → vegetation/mark → material → mikrodetaljer → flygning. En lyckad build är aldrig samma sak som godkänd rekonstruktion.
 
 | Prioritet | Gap | Nästa konkreta åtgärd | Acceptans / begränsning |
 |---|---|---|---|
-| P0 | Ingen lokalt hämtad LM-DTM/LiDAR | GeoTorget-åtkomst, produktvillkor och två förberedda filhämtningar | RH2000 och ursprunglig 1–2 m DTM, sammanhängande marktäckning, rimlig höjd mot oberoende kontroll |
+| P0 | Klassad LiDAR och oberoende DTM-kontroll saknas | 1 m RH2000-DTM är hämtad via Mapterhorn; fortsätt med laserkälla och oberoende kontroll | Markmodell finns; mätår och absolut noggrannhet är ännu inte verifierade |
 | P0 | Kommunala användningsvillkor saknas | Bekräfta footprints, 3D, ortofoto, markmodell och tillåten vidareleverans | Dokumenterad rätt för respektive källa, inte en tom copyright-rad |
 | P0 | Exakt SJV-licens för offentlig vidareleverans oklar | Kontrollera produktspecifik metadata/medgivande | Ingen rå-/härledd offentlig dataleverans innan detta är klart |
 | P1 | Riktiga tak saknas | Prioritera kommunal multipatch-import om licens/Z är klara; annars flerplans-LiDAR | Jämför taknock/takfot och siluetter; flat previewvolym räcker inte |

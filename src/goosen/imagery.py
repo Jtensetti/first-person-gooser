@@ -11,7 +11,13 @@ from .core import DataError, horizontal, sha256
 from .inventory import open_raster
 
 
-def orthophoto_texture(assets, bounds, path, resolution=0.5):
+def orthophoto_texture(assets, bounds, path, resolution=0.5, kind="orthophoto"):
+    if kind not in ("orthophoto", "satellite_rgb"):
+        raise DataError("Unknown RGB imagery kind")
+    if kind == "satellite_rgb" and any(
+        resolution < a.get("native_resolution_m", float("inf")) for _, a in assets
+    ):
+        raise DataError("Satellite imagery must not be presented at a finer pixel size than its source")
     w, s, e, n = bounds
     if not math.isfinite(resolution) or resolution <= 0:
         raise DataError("Orthophoto resolution must be positive")
@@ -72,7 +78,7 @@ def orthophoto_texture(assets, bounds, path, resolution=0.5):
         raise DataError(f"Orthophoto has {missing} uncovered pixels; supply covering licensed imagery")
     Image.fromarray(np.rint(target).clip(0, 255).astype("uint8").transpose(1, 2, 0)).save(path)
     return {
-        "kind": "orthophoto",
+        "kind": kind,
         "sha256": sha256(path),
         "width": width,
         "height": height,

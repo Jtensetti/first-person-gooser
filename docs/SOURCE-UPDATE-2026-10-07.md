@@ -1,5 +1,7 @@
 # Källkontroll 7 oktober 2026
 
+**Senare resultat:** [1 m DTM har nu hittats som öppna data och använts i Blender](OPEN-DATA-2026-10-07.md). Detta dokument beskriver det tidigare läget.
+
 Produktdokumentation, metadataåtkomst och faktisk filåtkomst är tre olika kontroller. Tabellen beskriver vad som kontrollerats i denna körning; den innebär inte att allt nedan har laddats ner eller godkänts för publik vidareleverans.
 
 | Källa | Aktuell kontroll och beslut |
