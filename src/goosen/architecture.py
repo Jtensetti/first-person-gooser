@@ -79,3 +79,57 @@ def modeled_gable(geom, terrain, ridge_height, origin):
         "rise_m": rise,
         "evidence": "modeled",
     }
+
+
+def plane_building(geom, terrain, origin, planes, ridge=None):
+    """Close walls and roof on exact footprints, splitting at a derived ridge."""
+    from .vectors import polygons
+
+    def height(x, y):
+        return min(p[0] * (x - p[3]) + p[1] * (y - p[4]) + p[2] for p in planes)
+
+    roof = {"vertices": [], "faces": []}
+    walls = {"vertices": [], "faces": []}
+    for poly in polygons(geom):
+        poly = orient(poly, sign=1)
+        coords = np.asarray(poly.exterior.coords)
+        ground = terrain.sample(coords[:, 0], coords[:, 1])
+        if not np.isfinite(ground).all():
+            raise DataError("Missing building foundation")
+        if min(height(*xy) - z for xy, z in zip(coords, ground)) < 1:
+            return None
+        bottom = float(ground.min()) - 0.25
+        line = None
+        if ridge:
+            center = np.asarray(ridge["ridge_point"])
+            direction = np.asarray(ridge["ridge_direction"])
+            reach = max(poly.bounds[2] - poly.bounds[0], poly.bounds[3] - poly.bounds[1]) * 3
+            line = LineString([center - direction * reach, center + direction * reach])
+        parts = list(split(poly, line).geoms) if line else [poly]
+        for part in parts:
+            mesh = polygon_mesh(part, height, origin)
+            offset = len(roof["vertices"])
+            roof["vertices"].extend(mesh["vertices"])
+            roof["faces"].extend([[i + offset for i in f] for f in mesh["faces"]])
+        for ring in [poly.exterior, *poly.interiors]:
+            for a, b in zip(list(ring.coords), list(ring.coords)[1:]):
+                edge = LineString([a, b])
+                segments = list(split(edge, line).geoms) if line else [edge]
+                for seg in segments:
+                    a, b = list(seg.coords)[0], list(seg.coords)[-1]
+                    i = len(walls["vertices"])
+                    walls["vertices"].extend(
+                        [
+                            [a[0] - origin[0], a[1] - origin[1], bottom],
+                            [b[0] - origin[0], b[1] - origin[1], bottom],
+                            [b[0] - origin[0], b[1] - origin[1], height(*b)],
+                            [a[0] - origin[0], a[1] - origin[1], height(*a)],
+                        ]
+                    )
+                    walls["faces"].append([i, i + 1, i + 2, i + 3])
+    return {
+        "walls": walls,
+        "roof": roof,
+        "evidence": "derived",
+        "rule": "lidar_two_plane_gable" if ridge else "lidar_single_plane",
+    }

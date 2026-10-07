@@ -264,3 +264,71 @@ def test_frozen_coast_replaces_nmd_sea_retains_lake_and_rejects_changed_polygon(
     write_json(catalog, j)
     with pytest.raises(DataError, match="differs from its frozen coastline"):
         prepare(c, catalog, tmp_path / "bad-coast", True)
+
+
+def test_context_surfaces_clip_buildings_and_water(inputs, tmp_path):
+    from shapely.geometry import Polygon
+
+    c, catalog = inputs
+    w, s, e, n = c["bounds"]
+    j = json.loads(catalog.read_text())
+    path = tmp_path / "context.json"
+    write_json(
+        path,
+        {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "id": "parking",
+                    "geometry": mapping(box(w + 90, s + 90, w + 180, s + 180)),
+                    "properties": {"amenity": "parking", "surface": "asphalt"},
+                }
+            ],
+        },
+    )
+    j["assets"]["context"] = [{**j["assets"]["buildings"][0], "path": path.name, "sha256": sha256(path)}]
+    write_json(catalog, j)
+    out = tmp_path / "context-world"
+    m = prepare(c, catalog, out, True)
+    tile = json.loads(gzip.decompress((out / m["tiles"][0]["file"]).read_bytes()))
+    surface = next(o for o in tile["objects"] if o["id"] == "context-parking")
+    forbidden = box(100, 100, 110, 110).union(box(160, 160, 175, 175))
+    for face in surface["mesh"]["faces"]:
+        poly = Polygon([surface["mesh"]["vertices"][i][:2] for i in face])
+        assert poly.intersection(forbidden).area < 1e-7
+    assert surface["material"] == "asphalt"
+    assert surface["material_evidence"] == "modeled"
+
+
+def test_missing_path_width_uses_narrow_model(inputs, tmp_path):
+    from shapely.geometry import LineString, Polygon
+
+    c, catalog = inputs
+    w, s, e, n = c["bounds"]
+    j = json.loads(catalog.read_text())
+    path = tmp_path / j["assets"]["roads"][0]["path"]
+    write_json(
+        path,
+        {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "id": "path",
+                    "geometry": mapping(LineString([(w + 10, s + 10), (w + 10, s + 110)])),
+                    "properties": {"highway": "path"},
+                }
+            ],
+        },
+    )
+    j["assets"]["roads"][0]["sha256"] = sha256(path)
+    write_json(catalog, j)
+    out = tmp_path / "path-world"
+    m = prepare(c, catalog, out, True)
+    tile = json.loads(gzip.decompress((out / m["tiles"][0]["file"]).read_bytes()))
+    road = next(o for o in tile["objects"] if o["id"] == "road-path")
+    area = sum(Polygon([road["mesh"]["vertices"][i][:2] for i in f]).area for f in road["mesh"]["faces"])
+    assert area == pytest.approx(150)
+    assert road["material"] == "gravel"
+    assert road["evidence"] == "modeled"

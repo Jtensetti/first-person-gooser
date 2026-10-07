@@ -19,11 +19,11 @@ from shapely import intersects_xy
 
 from .core import DataError, read_json, sha256, stable_seed, tiles, validate_asset, write_json
 from .rasters import warp_nodes, mesh_payload
-from .vectors import read_features, polygon_mesh, building_mesh, drape_mesh, clip_terrain_water
-from .lidar import load_points, derive_building, derive_canopy
+from .vectors import read_features, polygon_mesh, drape_mesh, clip_terrain_water, polygons
+from .lidar import load_points, derive_building, derive_canopy, canopy_peaks
 from .imagery import orthophoto_texture
 from .coast import load_coast, shoreline_height_check
-from .architecture import modeled_gable
+from .architecture import modeled_gable, plane_building
 
 FOREST_CODES = [111, 112, 113, 114, 115, 116, 117, 121, 122, 123, 124, 125, 126, 127]
 # Artistic seasonal defaults, never measurements or claimed farm observations.
@@ -189,6 +189,9 @@ def _prepare(c, catalog_path, output, preview):
     for role in ("buildings", "fields", "roads", "water"):
         if len(assets.get(role, [])) > 1:
             raise DataError(f"{role}: merge and deduplicate sources explicitly before building")
+    vectors["context"] = [
+        f for p, a in assets.get("context", []) for f in read_features(p, a["horizontal_crs"])
+    ]
     crop_map = catalog.get("crop_map", {})
     if crop_map and (crop_map.get("year") != c["crop_year"] or not crop_map.get("source")):
         raise DataError("Crop codebook must have the same year as parcel data and a source")
@@ -294,7 +297,20 @@ def _prepare(c, catalog_path, output, preview):
         if width is None:
             if not preview:
                 raise DataError("Road width missing; supply width evidence or explicit reviewed model")
-            width = c["default_road_width_m"]
+            width = {
+                "footway": 1.8,
+                "steps": 1.5,
+                "platform": 2,
+                "pedestrian": 3,
+                "path": 1.5,
+                "cycleway": 2.5,
+                "service": 3.5,
+                "track": 3,
+                "residential": 5,
+                "tertiary": 6,
+                "secondary": 7,
+                "primary": 8,
+            }.get(props.get("highway"), c["default_road_width_m"])
         if not 0 < float(width) < 100:
             raise DataError("Road width outside range")
         geom = f["geometry"]
@@ -303,7 +319,14 @@ def _prepare(c, catalog_path, output, preview):
             if geom.geom_type in ("Polygon", "MultiPolygon")
             else geom.buffer(float(width) / 2, cap_style=2, join_style=2)
         )
-        roads.append({**f, "geometry": surface, "modeled_width": props.get("width_m") is None})
+        roads.append(
+            {
+                **f,
+                "centerline": geom if geom.geom_type == "LineString" else None,
+                "geometry": surface,
+                "modeled_width": props.get("width_m") is None,
+            }
+        )
     if skipped_roads:
         gaps.append(f"{skipped_roads} bridge/tunnel features skipped; deck/underground heights required")
     buildings = []
@@ -325,7 +348,9 @@ def _prepare(c, catalog_path, output, preview):
         if not 1 < float(height) < 150:
             raise DataError("Building height outside supported range")
         buildings.append({**f, "height": float(height), "roof": roof, "height_evidence": proof})
-    unresolved_roofs = sum(f["roof"] is None for f in buildings)
+    unresolved_roofs = sum(
+        f["roof"] is None and not f.get("lidar_qa", {}).get("roof_model") for f in buildings
+    )
     if unresolved_roofs:
         gaps.append(
             f"{unresolved_roofs} roofs lack measured geometry; any generated gables/materials are modeled"
@@ -361,6 +386,16 @@ def _prepare(c, catalog_path, output, preview):
             "Diagnostic only. Modeled road widths and coastal structures need review."
         )
     exclusion = unary_union([water, building_union.buffer(0.5), road_union])
+    tree_candidates = (
+        canopy_peaks(
+            points,
+            terrain,
+            unary_union([exclusion.buffer(1), unary_union([f["geometry"] for f in vectors["fields"]])]),
+            c["bounds"],
+        )
+        if points is not None
+        else []
+    )
     fields = []
     unknown_codes = set()
     overlaps = 0
@@ -420,6 +455,8 @@ def _prepare(c, catalog_path, output, preview):
             "derived_heights": sum(f.get("lidar_qa", {}).get("status") == "derived" for f in buildings),
             "fitted_single_planes": sum(f["roof"] is not None for f in buildings),
             "canopy_samples": len(canopy),
+            "fitted_gables": sum(bool(f.get("lidar_qa", {}).get("roof_model")) for f in buildings),
+            "canopy_candidates": len(tree_candidates),
             "note": "Unresolved roofs retain modeled preview geometry. Roof/tree confusion requires visual QA.",
         }
     forest_mask = np.isin(land.values, FOREST_CODES).astype("uint8")
@@ -450,41 +487,126 @@ def _prepare(c, catalog_path, output, preview):
             anchor = inside.representative_point()
             if not (w <= anchor.x < e and s <= anchor.y < n):
                 continue
-            model = (
-                modeled_gable(f["geometry"], terrain, f["height"], origin)
-                if preview and c.get("modeled_architecture") and f["roof"] is None
+            roof_model = f.get("lidar_qa", {}).get("roof_model")
+            model = None
+            if roof_model or f["roof"]:
+                model = plane_building(
+                    f["geometry"],
+                    terrain,
+                    origin,
+                    roof_model["planes"] if roof_model else [f["roof"]],
+                    roof_model,
+                )
+            if model is None and preview and c.get("modeled_architecture"):
+                model = modeled_gable(f["geometry"], terrain, f["height"], origin)
+            if model is None:
+                # Preserve complex footprints, separate neutral walls from roof.
+                coords = [xy for poly in polygons(f["geometry"]) for xy in poly.exterior.coords]
+                top = (
+                    float(np.max(terrain.sample([p[0] for p in coords], [p[1] for p in coords])))
+                    + f["height"]
+                )
+                model = plane_building(f["geometry"], terrain, origin, [[0, 0, top, 0, 0]])
+                model["evidence"] = "modeled"
+                model["rule"] = "unresolved_flat_volume"
+            palette = stable_seed(c["seed"], f["id"])
+            # Art-directed subdued palette, not sampled pixels or per-house observations.
+            roof_material = [
+                "roof_slate",
+                "roof_slate",
+                "roof_charcoal",
+                "roof_grey",
+                "roof_clay",
+                "roof_brown",
+            ][palette % 6]
+            for part in ("walls", "roof"):
+                objects.append(
+                    {
+                        "id": "building-" + f["id"] + "-" + part,
+                        "kind": "building",
+                        "part": part,
+                        "material": ["plaster_warm", "brick_ochre", "plaster_light", "brick_red"][palette % 4]
+                        if part == "walls"
+                        else roof_material,
+                        "evidence": "derived",
+                        "height_evidence": f["height_evidence"],
+                        "roof_evidence": model["evidence"],
+                        "material_evidence": "modeled",
+                        "model_rule": model["rule"],
+                        "mesh": model[part],
+                    }
+                )
+        context_exclusion = unary_union([water, building_union.buffer(0.15), road_union])
+        for f in vectors["context"]:
+            props = f["properties"]
+            if props.get("barrier") == "hedge":
+                line = f["geometry"].intersection(region)
+                if line.geom_type not in ("LineString", "MultiLineString"):
+                    continue
+                segments = [line] if line.geom_type == "LineString" else line.geoms
+                for segment in segments:
+                    for distance in np.arange(0, segment.length, 0.6):
+                        point = segment.interpolate(distance)
+                        if context_exclusion.covers(point):
+                            continue
+                        z = float(terrain.sample(point.x, point.y))
+                        if np.isfinite(z):
+                            instances.append(
+                                {
+                                    "asset": "broadleaf",
+                                    "position": [point.x - w, point.y - s, z],
+                                    "yaw": float(distance % 6.28),
+                                    "height_m": 1.6,
+                                    "position_evidence": "derived",
+                                    "height_evidence": "modeled",
+                                    "evidence": "modeled",
+                                }
+                            )
+                continue
+            if f["geometry"].geom_type not in ("Polygon", "MultiPolygon"):
+                continue
+            geom = f["geometry"].intersection(region).difference(context_exclusion)
+            if geom.area < 1:
+                continue
+            kind = (
+                "lawn"
+                if (
+                    props.get("landuse") == "grass"
+                    or props.get("leisure") in ("park", "pitch")
+                    or props.get("surface") == "grass"
+                )
+                else "shore"
+                if props.get("natural") == "beach" or props.get("man_made") == "breakwater"
+                else "gravel"
+                if props.get("amenity") == "parking"
                 else None
             )
-            if model:
-                palette = stable_seed(c["seed"], f["id"])
-                for part in ("walls", "roof"):
-                    objects.append(
-                        {
-                            "id": "building-" + f["id"] + "-" + part,
-                            "kind": "building",
-                            "material": ["plaster_warm", "brick_ochre", "plaster_light"][palette % 3]
-                            if part == "walls"
-                            else ("roof_clay" if palette % 4 else "roof_slate"),
-                            "evidence": "derived",
-                            "height_evidence": f["height_evidence"],
-                            "roof_evidence": "modeled",
-                            "material_evidence": "modeled",
-                            "model_rule": model["rule"],
-                            "mesh": model[part],
-                        }
-                    )
-                continue
-            objects.append(
-                {
-                    "id": "building-" + f["id"],
-                    "kind": "building",
-                    "material": "building",
-                    "evidence": "derived",
-                    "height_evidence": f["height_evidence"],
-                    "roof_evidence": "derived" if f["roof"] else "modeled",
-                    "mesh": building_mesh(f["geometry"], terrain, f["height"], origin, f["roof"]),
-                }
-            )
+            if props.get("surface") == "asphalt":
+                kind = "asphalt"
+            if kind:
+                objects.append(
+                    {
+                        "id": "context-" + f["id"],
+                        "kind": "surface",
+                        "material": kind,
+                        "evidence": "derived",
+                        "material_evidence": "modeled",
+                        "mesh": drape_mesh(geom, terrain, origin, offset=0.02, spacing=4),
+                    }
+                )
+        if sea is not None:
+            shore = sea.buffer(4).difference(sea).intersection(region).difference(context_exclusion)
+            if shore.area:
+                objects.append(
+                    {
+                        "id": "modeled-shore-band",
+                        "kind": "surface",
+                        "material": "shore",
+                        "evidence": "modeled",
+                        "model_rule": "4m_landward_coast_material_band",
+                        "mesh": drape_mesh(shore, terrain, origin, offset=0.02, spacing=3),
+                    }
+                )
         for f in roads:
             geom = f["geometry"].intersection(region)
             if geom.area:
@@ -492,13 +614,46 @@ def _prepare(c, catalog_path, output, preview):
                     {
                         "id": "road-" + f["id"],
                         "kind": "road",
-                        "material": "gravel"
-                        if f["properties"].get("surface") in ("gravel", "unpaved", "dirt")
+                        "material": "lawn"
+                        if f["properties"].get("surface") == "grass"
+                        else "asphalt"
+                        if f["properties"].get("surface") in ("asphalt", "paved", "paving_stones", "sett")
+                        else "gravel"
+                        if f["properties"].get("surface")
+                        in ("gravel", "unpaved", "dirt", "ground", "fine_gravel", "pebblestone")
+                        or f["properties"].get("highway") in ("path", "track", "footway")
                         else "asphalt",
                         "evidence": "modeled" if f["modeled_width"] else "derived",
                         "mesh": drape_mesh(geom, terrain, origin, spacing=8),
                     }
                 )
+            if (
+                geom.area
+                and f["properties"].get("highway") in ("primary", "secondary")
+                and f["centerline"] is not None
+            ):
+                from shapely.ops import substring
+
+                line = f["centerline"]
+                dashes = []
+                for distance in np.arange(0, line.length, 12):
+                    segment = substring(line, float(distance), float(min(line.length, distance + 3)))
+                    if segment.geom_type == "LineString":
+                        dashes.append(
+                            segment.buffer(0.06, cap_style=2).intersection(region).intersection(geom)
+                        )
+                stripe = unary_union(dashes)
+                if stripe.area:
+                    objects.append(
+                        {
+                            "id": "markings-" + f["id"],
+                            "kind": "road_detail",
+                            "material": "road_paint",
+                            "evidence": "modeled",
+                            "model_rule": "generic_dashed_centerline_not_surveyed",
+                            "mesh": drape_mesh(stripe, terrain, origin, offset=0.042, spacing=3),
+                        }
+                    )
         for water_id, water_geometry, level, proof in water_surfaces:
             wet = water_geometry.intersection(region)
             if wet.area:
@@ -528,30 +683,45 @@ def _prepare(c, catalog_path, output, preview):
                     }
                 )
                 if f["crop_kind"] != "unknown":
-                    # Sparse clusters for authoring preview. Final micro-density is
-                    # generated around the camera in a separate asset/LOD pass.
-                    near = geom.intersection(Point((w + e) / 2, (s + n) / 2).buffer(c["crop_near_radius_m"]))
+                    # Distributed across actual parcels; no arbitrary circular preview patches.
+                    near = geom.buffer(-2.5)
                     instances += scatter(
                         near,
                         terrain,
-                        c["crop_spacing_m"],
+                        max(4.5, c["crop_spacing_m"]),
                         stable_seed(c["seed"], f["id"]),
                         origin,
                         f["crop_kind"],
                         CROP_HEIGHTS[f["crop_kind"]],
                         limit=c["max_instances_per_tile"] - len(instances),
                     )
-        instances += scatter(
-            forest.intersection(region),
-            terrain,
-            c["tree_spacing_m"],
-            c["seed"],
-            origin,
-            "broadleaf",
-            12,
-            limit=max(0, c["max_instances_per_tile"] - len(instances)),
-            height_sampler=canopy_sampler,
-        )
+        if tree_candidates:
+            for tree in tree_candidates:
+                x, y = tree["x"], tree["y"]
+                if w <= x < e and s <= y < n:
+                    instances.append(
+                        {
+                            "asset": "broadleaf",
+                            "position": [x - w, y - s, float(terrain.sample(x, y))],
+                            "yaw": (stable_seed(c["seed"], x, y) % 6283) / 1000,
+                            "height_m": tree["height_m"],
+                            "height_evidence": "derived",
+                            "position_evidence": "derived_candidate",
+                            "evidence": "modeled",
+                        }
+                    )
+        else:
+            instances += scatter(
+                forest.intersection(region),
+                terrain,
+                c["tree_spacing_m"],
+                c["seed"],
+                origin,
+                "broadleaf",
+                12,
+                limit=max(0, c["max_instances_per_tile"] - len(instances)),
+                height_sampler=canopy_sampler,
+            )
         texture = tile["id"] + "-ground.png"
         if assets.get("orthophoto"):
             texture_info = orthophoto_texture(
