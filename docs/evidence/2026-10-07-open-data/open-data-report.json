@@ -1,0 +1,98 @@
+{
+  "modeled_gable_count": 212,
+  "measured_roof_count": 0,
+  "blender_gui": {
+    "version": "5.2.2 LTS",
+    "opened_scene": "smygehuk-open-data/goosen-pilot.blend",
+    "material_preview": true,
+    "camera_view": true,
+    "saved": true
+  },
+  "tests": {
+    "passed": 47,
+    "ruff_check": "pass",
+    "ruff_format": "pass"
+  },
+  "sources": {
+    "terrain": [
+      {
+        "path": "open-dtm/61325_3950_25.tif",
+        "sha256": "3bd113de0716359a988d20206c2529c535ae505a0c369b3353206f29cc634cea",
+        "source": "https://download.mapterhorn.com/sources/se.tar",
+        "license": "CC0-1.0",
+        "license_evidence": "https://github.com/mapterhorn/mapterhorn/blob/main/source-catalog/se/metadata.json",
+        "evidence": "derived",
+        "retrieved_at": "2026-10-07T08:25:00.770254+00:00",
+        "horizontal_crs": "EPSG:3006",
+        "vertical_crs": "EPSG:5613",
+        "native_resolution_m": 1,
+        "surface_kind": "DTM",
+        "note": "Lantmateriet via Mapterhorn source archive. Native 1 m grid; LERC conversion max Z error 0.001 m. Survey date unverified; access year is not observation year.",
+        "use_status": "open",
+        "redistribution_status": "CC0",
+        "archive_source": {
+          "schema": 1,
+          "source": "https://download.mapterhorn.com/sources/se.tar",
+          "archive_bytes": 397607925760,
+          "license": "CC0-1.0",
+          "license_evidence": "https://github.com/mapterhorn/mapterhorn/blob/main/source-catalog/se/metadata.json",
+          "source_processing": "https://github.com/mapterhorn/mapterhorn/blob/main/pipelines/source_to_cog.py",
+          "members": [
+            {
+              "name": "LICENSE.pdf",
+              "header_offset": 1024,
+              "bytes": 153131,
+              "sha256": "4350ce95f55ed9c2ab894c15fab11e6c1aca4e008f980fd8ed1c4952fb99d58d"
+            },
+            {
+              "name": "metadata.json",
+              "header_offset": 156160,
+              "bytes": 213,
+              "sha256": "cb3a01a4884f0c07bb50d5574e6a05e000f4cd2b414bfbe3481db818981aba09"
+            },
+            {
+              "name": "files/61325_3950_25.tif",
+              "header_offset": 26032128,
+              "bytes": 2224726,
+              "sha256": "3bd113de0716359a988d20206c2529c535ae505a0c369b3353206f29cc634cea"
+            }
+          ]
+        },
+        "source_access_year": null
+      }
+    ],
+    "satellite_rgb": [
+      {
+        "path": "sentinel/rgb.tif",
+        "sha256": "ff525ea0b4cd4f665d471255d01b4b5fe17146c317d8eeaa3a5ac355c88f71c8",
+        "source": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/33/U/UB/2025/7/S2A_33UUB_20250719_1_L2A/TCI.tif",
+        "license": "Copernicus Sentinel open data",
+        "license_evidence": "https://registry.opendata.aws/sentinel-2-l2a-cogs/",
+        "evidence": "derived",
+        "retrieved_at": "2026-10-07T08:26:51.805229+00:00",
+        "horizontal_crs": "EPSG:32633",
+        "native_resolution_m": 10,
+        "color_space": "sRGB",
+        "rgb_bands": [
+          1,
+          2,
+          3
+        ],
+        "imagery_kind": "satellite_rgb",
+        "local_scl_counts": {
+          "4": 2131,
+          "5": 655,
+          "6": 717,
+          "7": 37
+        },
+        "note": "TCI 10 m, not high-resolution aerial imagery. SCL is 20 m; class 7 is unclassified.",
+        "use_status": "open",
+        "redistribution_status": "Copernicus Sentinel terms",
+        "attribution": "Contains modified Copernicus Sentinel data (2025), processed by ESA/Element 84.",
+        "observation_year": 2025,
+        "observation_datetime": "2025-07-19T10:35:44.038000Z"
+      }
+    ]
+  },
+  "acceptance_passed": false
+}

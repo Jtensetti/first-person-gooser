@@ -1,0 +1,54 @@
+{
+  "usable_points": 3853967,
+  "ground_comparison": {
+    "samples": 2693409,
+    "median_m": -0.0010269121172417073,
+    "p95_absolute_m": 0.08134446737907589,
+    "note": "Consistency comparison against the DTM, not independent survey accuracy."
+  },
+  "derived_heights": 265,
+  "fitted_single_planes": 12,
+  "canopy_samples": 18931,
+  "note": "Unresolved roofs retain modeled preview geometry. Roof/tree confusion requires visual QA.",
+  "source_item": "25a001-613_39",
+  "source_sha256": "2b3b522854cddd4e3d40b07e49003e09496eaed401872728ae2ab01697737c0c",
+  "acceptance_passed": false,
+  "offline_replay": {
+    "restored_files": 43,
+    "identical": true,
+    "files": [
+      {
+        "file": "E395500_N6133500_500-ground.png",
+        "sha256": "004dd5e67763a6fd97eab3847270d3adaf37bccfc5c39883cca3d247a5bb4f48"
+      },
+      {
+        "file": "E395500_N6133500_500.tile.json.gz",
+        "sha256": "5f72f75e19b4347e11ca6973a4c1c0b8d49f5748d17088e599174c674ba908f9"
+      },
+      {
+        "file": "E395500_N6134000_500-ground.png",
+        "sha256": "f7c5e324d285e7917521c49ae2d4e08f41f9f20ebdd8c82827b71dd639e0877b"
+      },
+      {
+        "file": "E395500_N6134000_500.tile.json.gz",
+        "sha256": "788fe40bbecf97df851639f4685c0ed905ebd3a9d44704c06f3dd9f07f0c2f50"
+      },
+      {
+        "file": "E396000_N6133500_500-ground.png",
+        "sha256": "2c48db9afbf52509a28afa7cf1d8bf4fd88f5943034b72d683346f95e5e64846"
+      },
+      {
+        "file": "E396000_N6133500_500.tile.json.gz",
+        "sha256": "92cbe5cf1696ffe79c95386bb2d211552d5b6421505e416423f85fa96b1cb57b"
+      },
+      {
+        "file": "E396000_N6134000_500-ground.png",
+        "sha256": "8a8249d5888cedf39b39491eca9f948a6c007ccfbbce537b02a4fb50bbe53868"
+      },
+      {
+        "file": "E396000_N6134000_500.tile.json.gz",
+        "sha256": "c68186181f46915f83c95ba6affd948837dac5a2005d4b5173e7dfed77bdc024"
+      }
+    ]
+  }
+}

@@ -23,6 +23,11 @@ def audit_world(world):
             errors.append("Checksum: " + tile["id"])
             continue
         package = json.loads(gzip.decompress(path.read_bytes()))
+        texture = world / package["ground_texture"]
+        if not texture.is_file() or (
+            package.get("ground_texture_info") and sha256(texture) != package["ground_texture_info"]["sha256"]
+        ):
+            errors.append("Ground texture checksum: " + tile["id"])
         counts[tile["id"]] = {"instances": len(package["instances"]), "objects": len(package["objects"])}
         for obj in package["objects"]:
             vertices = np.asarray(obj["mesh"]["vertices"], dtype=float)
@@ -56,6 +61,7 @@ def audit_world(world):
         "preview_only": m["preview_only"],
         "acceptance_passed": False,
         "gaps": m["gaps"],
+        "coast_qa": m.get("coast_qa"),
         "scope": "Checksums, finite geometry, face indices, shared LOD0 heights, instance budget. Not ortho/LiDAR/visual validation.",
     }
     write_json(world / "qa.json", r)

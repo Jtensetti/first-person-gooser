@@ -1,0 +1,23 @@
+{
+  "tile_hashes_identical": true,
+  "bundle_files": 26,
+  "catalog_sha256": "237cf7e8fe8c727b0409eed53f16c51e964120dd66025e6f746d1e4b6ed577c2",
+  "tiles": [
+    {
+      "id": "E395500_N6133500_500",
+      "sha256": "b01c11a406273000bd94ad03b88befbdd247ccb5d44365e5c270654d65ed6037"
+    },
+    {
+      "id": "E396000_N6133500_500",
+      "sha256": "fc9d2559e6000b7a44e4834b24b422c3853b76c28086b36424715f615c3e1bcc"
+    },
+    {
+      "id": "E395500_N6134000_500",
+      "sha256": "e9ae5e73c13b0f453fca018396467b06cbe916918a531c9b736ad8e2ed11d946"
+    },
+    {
+      "id": "E396000_N6134000_500",
+      "sha256": "f9fd27b4756979535c2d47c03482326e5dc629ba0876e4ba890b13ea6bcd0d61"
+    }
+  ]
+}

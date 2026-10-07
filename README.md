@@ -1,14 +1,24 @@
 # GÅSEN — Trelleborg på riktigt
 
+**Nu spelbar:** [Gåsförgrund, gränssnitt och fri flygning över Smygehuk](docs/FLIGHT-2026-10-07.md). Lokal Three.js-runtime med karta, foto, styrning och säker höjd över terrängen.
+
+Senaste miljöpasset: [laserbaserade sadeltak, detaljerade material och vegetation](docs/ENVIRONMENT-2026-10-07.md). 255 byggnader i pilotrutan, 173 med godkänd laseranpassning för tak. 60 tester och fem validerade GLB-exporter.
+
+**Laseruppdatering 2026-10-07:** verklig laserdata är importerad. 265 byggnadshöjder härleds, 12 tak klarar enkelplansanpassning och vegetation får lokala höjdprover. [Resultat och begränsningar](docs/LASER-2026-10-07.md). Äldre statusnoteringar nedan beskriver tidigare lägen.
+
 En reproducerbar **geodata → Blender → tile**-pipeline för en framtida flygupplevelse från en gåsrygg. Verkliga data bestämmer makrogeometrin; procedurgenerering tillför detaljer. Ingen GIS-panel byggs in i upplevelsen.
+
+**Öppna data 2026-10-07:** piloten använder nu **1 m markmodell i RH2000**, hämtad utan konto från Mapterhorns Lantmäteriet-arkiv, samt Sentinel-2 RGB för markfärg. 212 enkla byggnader har modellerade sadeltak. Scenen är öppnad och sparad i Blender 5.2.2 med materialvisning. [Aktuellt resultat och ombyggnad](docs/OPEN-DATA-2026-10-07.md). 47 tester passerar. Äldre leveransnoteringar nedan beskriver tidigare underlag.
 
 **Leverans 2026-10-06:** inventering av hela NBS-repot, kontrollerade källor, vald kilometer vid Smygehuk, fungerande Python-pipeline, Blender-byggare, Geometry Nodes-instancing, tre terräng-LOD, GLB-export och överföringsverktyg. Kedjan har körts med riktiga pilotpolygoner och raster i Blender 4.5.3 LTS. Detta är en verifierad teknisk grund, **inte en färdig fotorealistisk värld**. Lantmäteriets skyddade originaldata och kommunens återanvändningsvillkor återstår.
 
-**Börja med [körguiden inför imorgon](docs/TOMORROW.md).**
+**Uppdatering 2026-10-07:** kedjan är nu körd i Windows/Python 3.13 och Blender **5.2.2 LTS**. Windows-hashfel är rättat, säker datapaketsåterställning och ortofotoimport är implementerade, och offline-ombyggnad ger identiska tilehashar. Se [aktuell leverans och körguide](docs/DELIVERY-2026-10-07.md). [Tidigare körguide](docs/TOMORROW.md) finns kvar som bakgrund.
+
+**Miljön först:** [kustuppdateringen](docs/COAST-2026-10-07.md) ersätter NMD:s grova havskant med en fryst OSM-kustlinje för piloten. Havspolygonen omprövas mot råkällan vid varje bygge; saknade segment och motsägande riktningar stoppas. Detta var prioriteringen vid kustpasset. Den senare beställningen lägger till den spelbara pilotflygningen ovan.
 
 ## Kör en första värld
 
-Python 3.11 eller 3.12 och Git behövs. Blender 4.5+ används separat; inga GIS-paket behöver installeras i Blender.
+Python 3.11–3.13 och Git behövs. Blender 4.5+ används separat; inga GIS-paket behöver installeras i Blender.
 
 ```bash
 python -m venv .venv
@@ -45,4 +55,4 @@ Om källmappen saknas klonas det privata källrepot med din befintliga Git-behö
 | [VALIDATION](docs/VALIDATION.md) | Utförda tester, rendering och benchmarkens gränser |
 | [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES.md) | Datavillkor och attribution |
 
-Ingen färdig gås, flygkontroll, webbruntime eller kommunomfattande rekonstruktion påstås vara levererad. Referensbilden styr känslan; verklig geografi styr placeringar, avstånd och siluetter.
+Pilotflygningen är levererad med en animerad gåsförgrund. En komplett riggad 3D-gås, fotorealistisk närmiljö och kommunomfattande rekonstruktion återstår. Referensbilden styr känslan; verklig geografi styr placeringar, avstånd och siluetter.

@@ -1,5 +1,7 @@
 # Körguide inför 7 oktober 2026
 
+**Uppdaterad leverans:** följ [Windows/Blender 5.2-guiden](DELIVERY-2026-10-07.md) för verifierad paketåterställning, fryst återkörning och den mindre 4 MB-DTM-filen. Den här sidan beskriver föregående körning; dagens källkontroll ändrar framför allt NVDB-åtkomst och ortofotoimport.
+
 Allt nedan körs från repots rot. Använd ett nytt jobbnamn för varje byggning så att en fungerande leverans inte skrivs över. Rådata och Blender-resultat ligger utanför Git. Den första genomförda körningen är dokumenterad i [VALIDATION](VALIDATION.md).
 
 ## 1. Installera och lås källrepot

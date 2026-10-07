@@ -1,0 +1,39 @@
+{
+  "blender": "5.2.2 LTS",
+  "elapsed_seconds": 34.02,
+  "tiles": [
+    {
+      "tile": "E395500_N6133500_500",
+      "mesh_objects": 186,
+      "instances": 5453,
+      "triangles": 176513
+    },
+    {
+      "tile": "E396000_N6133500_500",
+      "mesh_objects": 72,
+      "instances": 1559,
+      "triangles": 116721
+    },
+    {
+      "tile": "E395500_N6134000_500",
+      "mesh_objects": 175,
+      "instances": 8904,
+      "triangles": 231645
+    },
+    {
+      "tile": "E396000_N6134000_500",
+      "mesh_objects": 814,
+      "instances": 2145,
+      "triangles": 176520
+    }
+  ],
+  "preview_only": true,
+  "accepted_photorealism": false,
+  "export_axes": "glTF X east, Y up, Z south; translation (E-E0, H, -(N-N0))",
+  "limitations": [
+    "Procedural prototype vegetation",
+    "Generic facades",
+    "No browser benchmark",
+    "No goose or flight mechanic yet"
+  ]
+}

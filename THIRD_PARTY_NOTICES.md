@@ -8,10 +8,15 @@ Projektkod, rådata, härledda data, modeller, fotografier och material har skil
 - **AlphaEarth, när exporten används:** CC BY 4.0. “The AlphaEarth Foundations Satellite Embedding dataset is produced by Google and Google DeepMind.” Ange även källa och bearbetning. Datat används för semantik, inte exakta objekthöjder.
 - **Sentinel-2:** Copernicus Sentinel-data under tillämpliga öppna villkor; ange ESA/EU/Copernicus och observationstid vid användning. Bearbetade index är inte originalortofoto.
 - **SRTM-preview:** NASA/USGS SRTMGL1_003, år 2000, EGM96. Omprojekterad ythöjd; ingen uppmätt RH2000-terräng.
-- **Lantmäteriet:** filprodukternas aktuella GeoTorget-villkor och användarens behörighet ska dokumenteras separat. CC BY-status för STAC-metadata får inte överföras till alla tillhörande filprodukter utan kontroll. Skyddade filprodukter har inte hämtats här.
+- **Lantmäteriet via Mapterhorn:** pilotens 1 m DTM hämtas från Mapterhorns öppna källarkiv, CC0 enligt arkiverad metadata och medföljande licens. Dessa sparas med rasterfilen. [Källkontroll och begränsningar](docs/OPEN-DATA-2026-10-07.md).
+- **Lantmäteriet, andra produkter:** filprodukternas aktuella GeoTorget-villkor och användarens behörighet ska dokumenteras separat. CC BY-status för STAC-metadata får inte överföras till alla tillhörande filprodukter utan kontroll. Skyddade filprodukter har inte hämtats här.
 - **Trelleborgs kommun:** dokumenterad återanvändningsrätt inväntas för footprints, multipatch, markmodell och ortofoto. Hämtbarhet är inte licensbevis.
 - **Jordbruksverket:** offentlig WFS används för lokal pilotberedning enligt publicerad tjänst/öppna-data-information. Exakt återdistributionslicens för skiften är inte fastställd i denna leverans. Råpolygonerna finns inte i det offentliga Git-repot.
 - **Skogsstyrelsen, Trafikverket, SMHI, SCB, RAÄ, JRC och Copernicus DEM:** utvärderade källor; varje faktiskt införd produkt behöver egen metadata/attribution. Ingen generell licens antas för alla deras produkter.
 - **Procedurala Blender-prototyper:** egen enkel kodgenererad geometri, inte tredjepartsmodeller eller bokillustrationer. Ersättningsassets måste registreras med användnings-/distributionsrätt.
 
 Tillämplig attribution ska kunna nås diskret via exempelvis eftertexter eller en informationssida. Inga analyslager eller provenancepaneler ska ligga över den egentliga flygupplevelsen. Referensbilden används som brief och har inte kopierats in i publicerade assets.
+
+## Flygprototyp
+
+Three.js 0.186.1 används under MIT, med LICENSE inkluderad i det lokala byggpaketet. `runtime/public/art/goose-rider.png` är projektets originalgenererade AI-bild (OpenAI Image Generation, 2026-10-07), inte Google Maps-material eller en bokillustration. Gåsen visas som en animerad kameraförgrund.

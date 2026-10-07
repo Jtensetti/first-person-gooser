@@ -7,6 +7,12 @@ from goosen.core import DataError, sha256, validate_asset
 from goosen.osm import parse_osm, complete_relations
 
 
+def test_osm_error_body_is_not_an_empty_success():
+    for body in (b"<osm><remark>timeout</remark></osm>", b"<html/>"):
+        with pytest.raises(DataError):
+            parse_osm(body)
+
+
 class Response:
     def __init__(self, data):
         self.data = data

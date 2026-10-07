@@ -18,6 +18,7 @@ def main(argv=None):
         "discover",
         "fetch-sjv",
         "fetch-osm",
+        "fetch-coast",
         "fetch-municipal",
         "fetch-lm",
         "bootstrap-preview",
@@ -87,6 +88,11 @@ def main(argv=None):
 
             r = fetch_osm(c, a.output)
             print("Fetched OSM fallback: " + ", ".join(r))
+        elif a.command == "fetch-coast":
+            from .coast import fetch_coast
+
+            r = fetch_coast(c, a.output)
+            print(json.dumps(r["coastline"][0]["topology"], indent=2))
         elif a.command == "fetch-municipal":
             from .acquire import fetch_municipal
 

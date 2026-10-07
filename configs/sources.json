@@ -11,7 +11,7 @@
       "license_status": "GeoTorget product terms; STAC metadata CC-BY-4.0",
       "access_status": "login_required",
       "official_url": "https://geotorget.lantmateriet.se/geodataprodukter/markhojdmodell-nedladdning-api",
-      "decision": "download adapter + asset lock ready; HTTP 401 without entitlement"
+      "decision": "4 MB pilot-covering 1 m asset available in configs/lm-dtm-pilot.asset.json; HEAD 401 without entitlement"
     },
     {
       "id": "lm-lidar",
@@ -121,7 +121,7 @@
       "license_status": "Lastkajen product terms",
       "access_status": "login_required",
       "official_url": "https://www.nvdb.se/sv/kund/hamta-aktuella-data/",
-      "decision": "request geometry, width, class, bridge/tunnel"
+      "decision": "Current width/class/network: Datautbytesportal Open API; download account required. Lastkajen for historical data."
     },
     {
       "id": "trafikverket-rail",
@@ -143,7 +143,7 @@
       "license_status": "CC-BY-4.0",
       "access_status": "optional_authenticated_export",
       "official_url": "https://developers.google.com/earth-engine/datasets/catalog/GOOGLE_SATELLITE_EMBEDDING_V1_ANNUAL",
-      "decision": "64D export prepared; no exact heights; fusion pending"
+      "decision": "Earth Engine adapter plus documented public GCS alternative; semantic only, no new data needed for first geometry"
     },
     {
       "id": "sentinel2",
@@ -244,5 +244,7 @@
       "official_url": "https://api.lantmateriet.se/ogc-features/v1/hydrografi",
       "decision": "exact polygon source and permission still needed"
     }
-  ]
+  ],
+  "rechecked_on": "2026-10-07",
+  "verification_report": "docs/SOURCE-UPDATE-2026-10-07.md"
 }

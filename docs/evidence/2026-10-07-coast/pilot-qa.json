@@ -1,0 +1,70 @@
+{
+  "schema": 1,
+  "world": "smygehuk-1km",
+  "structural_pass": true,
+  "errors": [],
+  "tile_counts": {
+    "E395500_N6133500_500": {
+      "instances": 2679,
+      "objects": 81
+    },
+    "E396000_N6133500_500": {
+      "instances": 347,
+      "objects": 46
+    },
+    "E395500_N6134000_500": {
+      "instances": 5241,
+      "objects": 66
+    },
+    "E396000_N6134000_500": {
+      "instances": 498,
+      "objects": 260
+    }
+  },
+  "preview_only": true,
+  "acceptance_passed": false,
+  "gaps": [
+    "Terrain is a preview surface in EPSG:5773; not an RH2000 bare-earth DTM",
+    "Coarse surface model: no claims about ditches, embankments or surveyed terrain",
+    "No licensed orthophoto; procedural base materials only",
+    "No LiDAR or approved municipal 3D model; building heights unresolved where absent",
+    "OSM coastline topology verified; position still needs orthophoto/official comparison",
+    "Sea level uses a modeled preview zero, not an observed level in the terrain datum",
+    "281 roofs use a modeled flat volume; roof structure unresolved",
+    "Tree heights and density use modeled prototypes; no accepted local canopy estimates",
+    "Vegetation assets, phenology and facade materials still require visual acceptance"
+  ],
+  "coast_qa": {
+    "segments": 91,
+    "partition_cells": 2,
+    "coast_length_m": 1934.5007999278823,
+    "sea_area_m2": 186903.59721766837,
+    "land_area_m2": 936696.4027823317,
+    "topology_pass": true,
+    "positional_accuracy_verified": false,
+    "ways": [
+      {
+        "id": "27640952",
+        "version": "20",
+        "timestamp": "2024-11-01T19:57:31Z"
+      }
+    ],
+    "osm_base": "2026-10-07T07:58:59Z",
+    "nmd_disagreement_m2": 9886.218882748151,
+    "terrain_seam": {
+      "sample_count": 361,
+      "valid_samples": 361,
+      "sampling_m": 5.0,
+      "sea_level_evidence": "modeled",
+      "residual_p05_m": -1.9853882136414505,
+      "residual_median_m": 0.30265352631301584,
+      "residual_p95_m": 2.5946643978268566,
+      "max_abs_residual_m": 3.9990515548564556,
+      "note": "Includes piers/quays. Difference from modeled sea, not surveyed vertical error."
+    },
+    "building_overlap_m2": 0.0,
+    "road_overlap_m2": 69.22466941608408,
+    "overlap_note": "Diagnostic only. Modeled road widths and coastal structures need review."
+  },
+  "scope": "Checksums, finite geometry, face indices, shared LOD0 heights, instance budget. Not ortho/LiDAR/visual validation."
+}

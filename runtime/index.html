@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="sv"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#172b30"><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23172b30'/%3E%3Cpath d='M4 17Q10 6 16 18Q22 6 28 10L27 14Q21 13 16 25Q10 14 4 17' fill='%23eee7d6'/%3E%3C/svg%3E"><title>GÅSEN · Trelleborg från ovan</title></head>
+<body>
+<canvas id="world" aria-label="Flygbar 3D-miljö över Smygehuk"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<header class="hud">
+ <a class="brand" href="#" aria-label="Gåsen – pausa"><svg viewBox="0 0 58 26"><path d="M3 17C14 5 21 8 27 15C32 8 38 7 46 8L52 4L55 7L48 11C40 10 33 15 28 23C21 14 12 13 3 17Z" fill="currentColor"/></svg><span>GÅSEN<small>TRELLEBORG FRÅN OVAN</small></span></a>
+ <div id="compass" class="compass" aria-label="Kompass"><span class="compass-needle"></span><div id="compass-track"></div><b id="heading">N</b></div>
+ <div class="atmosphere"><span class="sun-icon">☼</span><div>Sommarkväll<small>Fri flygning · Smygehuk</small></div></div>
+</header>
+<nav class="side-nav hud" aria-label="Flygmeny">
+ <button id="map-button" title="Karta (M)"><span>◈</span>Karta<kbd>M</kbd></button>
+ <button id="photo-button" title="Foto (P)"><span>▣</span>Foto<kbd>P</kbd></button>
+ <button id="settings-button" title="Inställningar"><span>☷</span>Inställningar</button>
+</nav>
+<div id="reticle" aria-hidden="true"><i></i></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<footer class="hud">
+ <div class="telemetry"><div><small>HÖJD ÖVER MARK</small><strong id="altitude">—</strong><em>m</em></div><div><small>FART</small><strong id="speed">—</strong><em>km/h</em></div><div class="flight-state"><small>FLYGLÄGE</small><span id="flight-state">Segelflygning</span></div></div>
+ <div class="bottom-controls"><button id="pause-button" aria-label="Pausa flygningen">Ⅱ <span>Pausa</span><kbd>Esc</kbd></button><button id="sound-button" aria-label="Slå på vindljud" aria-pressed="false">Ljud av</button><button id="fullscreen-button" aria-label="Helskärm">⛶</button></div>
+ <button id="minimap-button" aria-label="Öppna kartan"><canvas id="minimap" width="240" height="240"></canvas><span>N</span><svg viewBox="0 0 24 24"><path d="M12 2L19 21L12 16L5 21Z" fill="currentColor"/></svg></button>
+ <span class="signature">Samma platser. Nya perspektiv.</span>
+</footer>
+<section id="welcome" class="welcome">
+ <div class="eyebrow"><i></i> EN KILOMETER AV SYDKUSTEN</div>
+ <h1>En annan<br><em>utsikt.</em></h1>
+ <p>Lämna marken en stund.<br>Segla över Smygehuk på en gåsrygg.</p>
+ <button id="fly-button" class="primary" disabled><span id="fly-label">Förbereder landskapet</span><span class="arrow">↗</span></button>
+ <div id="loading"><div id="loading-bar"></div></div><small id="load-status" role="status">Laddar terrängen …</small>
+ <div class="key-hint"><span><kbd>A</kbd><kbd>D</kbd> sväng</span><span><kbd>W</kbd><kbd>S</kbd> fart</span><span><kbd>E</kbd><kbd>Q</kbd> höjd</span></div>
+</section>
+<dialog id="pause-dialog"><button class="close" data-close aria-label="Stäng">×</button><div class="eyebrow">EN STUND I LUFTEN</div><h2>Ta in utsikten.</h2><p>Flygningen är pausad.</p><button id="resume-button" class="primary">Fortsätt flyga <span>↗</span></button><div class="dialog-actions"><button id="restart-button">Tillbaka till hamnen</button><button id="help-button">Så flyger du</button></div></dialog>
+<dialog id="map-dialog"><button class="close" data-close aria-label="Stäng karta">×</button><div class="eyebrow">UPPTÄCK FRÅN OVAN</div><h2>Smygehuk & omnejd</h2><p>Välj en startplats. Den ljusa ramen är vårt flygområde.</p><div class="large-map"><img src="./world/map.jpg" alt="Karta över pilotområdets bebyggelse, vägar, åkrar och kust"><span class="north">N ↑</span><span id="map-position">➤</span></div><div class="places"><button data-place="harbour">01 <b>Hamnen</b><small>Hav & kust</small></button><button data-place="village">02 <b>Smygehamn</b><small>Tak & trädgårdar</small></button><button data-place="fields">03 <b>Åkrarna</b><small>Öppet landskap</small></button></div><small class="muted">© OpenStreetMap contributors · Copernicus Sentinel · Lantmäteriet via Mapterhorn · Jordbruksverket</small></dialog>
+<dialog id="settings-dialog"><button class="close" data-close aria-label="Stäng inställningar">×</button><div class="eyebrow">GÖR FLYGNINGEN DIN</div><h2>Känsla & bild</h2><label>Bildkvalitet<select id="quality"><option value="balanced">Balanserad</option><option value="high">Hög</option><option value="light">Lätt</option></select></label><label>Muskänslighet<input id="sensitivity" type="range" min="0.3" max="2" step="0.1" value="1"></label><label>Synfält<input id="fov" type="range" min="55" max="90" step="1" value="70"></label><label>Visa gåsen<input id="show-goose" type="checkbox" checked></label><label>Lugn kamera<input id="calm-camera" type="checkbox"></label><p class="muted">Pilotmiljö på 1 km². Markbilden är ännu grov och vissa byggnadsdetaljer är modellerade.</p></dialog>
+<dialog id="help-dialog"><button class="close" data-close aria-label="Stäng hjälp">×</button><div class="eyebrow">FÖLJ VINDEN</div><h2>Så flyger du</h2><dl><dt>Mus</dt><dd>Rikta flygningen. Om muspekaren är fri: håll vänster musknapp och dra. Dubbelklick låser musen om webbläsaren tillåter det.</dd><dt>A / D eller ← / →</dt><dd>Sväng och luta vingarna.</dd><dt>W / S</dt><dd>Öka eller minska farten.</dd><dt>E / Q eller ↑ / ↓</dt><dd>Stig eller sjunk. Mellanslag stiger också.</dd><dt>R</dt><dd>Räta upp flygningen.</dd><dt>Esc</dt><dd>Pausa och släpp muspekaren.</dd><dt>M / P / F</dt><dd>Karta, foto och helskärm.</dd></dl><p class="muted">Gåsen håller säker höjd över terräng, tak och trädkronor. Vid områdets kant vänder hon mjukt tillbaka.</p></dialog>
+<section id="photo-panel" hidden><span>FOTOLÄGE</span><button id="capture-button" class="primary">Spara bild ↓</button><button id="photo-close">Tillbaka <kbd>Esc</kbd></button></section>
+<script type="module" src="/src/main.js"></script>
+</body></html>

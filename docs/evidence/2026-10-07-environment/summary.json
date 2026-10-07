@@ -1,0 +1,39 @@
+{
+  "world_bounds": [
+    395500,
+    6133500,
+    396500,
+    6134500
+  ],
+  "visible_roofs": {
+    "lidar_two_plane_gable": 163,
+    "generic_gable_32deg_capped": 41,
+    "unresolved_flat_volume": 41,
+    "lidar_single_plane": 10
+  },
+  "instances": {
+    "broadleaf": 5476,
+    "grass": 2647,
+    "potato": 8197,
+    "barley": 1088,
+    "rapeseed": 641,
+    "flower_mix": 12
+  },
+  "instances_total": 18061,
+  "context_surface_features_used": 27,
+  "context_features_acquired": 32,
+  "all_input_buildings": 281,
+  "lidar_gables_all": 170,
+  "lidar_single_planes_all": 12,
+  "canopy_candidates": 5427,
+  "parts": {
+    "terrain": 12,
+    "building": 510,
+    "surface": 36,
+    "road": 165,
+    "road_detail": 5,
+    "water": 6,
+    "field": 13
+  },
+  "accepted_photorealism": false
+}

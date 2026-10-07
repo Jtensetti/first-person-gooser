@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import json
-import shutil
 import subprocess
 import csv
 from pathlib import Path
 
 from .core import DataError, geographic_bounds, sha256, write_json
+from .source_lock import locked_bytes
 
 NBS_COMMIT = "8263aa2f583170fc3a6a6bf6f3f174a7c8ac4322"
 
@@ -32,11 +32,10 @@ def make_transfer_plan(repo, c, output):
             expected = {r["path"]: r["sha256"] for r in csv.DictReader(stream)}
 
     def locked(rel):
-        p = repo / rel
-        digest = sha256(p)
-        if not expected or expected.get(rel) != digest:
+        if not expected or rel not in expected:
             raise DataError("Source file not verified against the pinned inventory: " + rel)
-        return {"path": rel, "sha256": digest, "bytes": p.stat().st_size}
+        data = locked_bytes(repo, rel, expected[rel], NBS_COMMIT)
+        return {"path": rel, "sha256": expected[rel], "bytes": len(data)}
 
     bbox = geographic_bounds(c, c["halo_m"])
     entries = []
@@ -110,22 +109,18 @@ def transfer(repo, plan_path, dest, include_preview=False):
     for e in plan["files"]:
         if e["decision"] != "admit" and not (include_preview and e["decision"] == "preview_only"):
             continue
-        source = (repo / e["path"]).resolve()
-        if not source.is_relative_to(repo.resolve()) or sha256(source) != e["sha256"]:
-            raise DataError(f"Transfer input differs from lock: {e['path']}")
+        data = locked_bytes(repo, e["path"], e["sha256"], NBS_COMMIT)
         out = dest / Path(e["path"]).name
-        shutil.copyfile(source, out)
+        out.write_bytes(data)
         if sha256(out) != e["sha256"]:
             raise DataError("Transfer checksum mismatch")
         copied.append({**e, "local_path": out.name})
     for item in plan["support_files"]:
         rel = item["path"]
-        source = (repo / rel).resolve()
-        if not source.is_relative_to(repo.resolve()) or sha256(source) != item["sha256"]:
-            raise DataError("Support file differs from source lock: " + rel)
+        data = locked_bytes(repo, rel, item["sha256"], NBS_COMMIT)
         out = dest / "upstream" / rel
         out.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(source, out)
+        out.write_bytes(data)
         copied.append({**item, "role": "upstream_reference", "local_path": out.relative_to(dest).as_posix()})
     write_json(dest / "transfer-receipt.json", {"source_commit": plan["source_commit"], "files": copied})
     return copied

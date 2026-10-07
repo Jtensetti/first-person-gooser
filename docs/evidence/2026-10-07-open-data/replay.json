@@ -1,0 +1,38 @@
+{
+  "restored_files": 37,
+  "identical": true,
+  "files": [
+    {
+      "file": "E395500_N6133500_500-ground.png",
+      "sha256": "004dd5e67763a6fd97eab3847270d3adaf37bccfc5c39883cca3d247a5bb4f48"
+    },
+    {
+      "file": "E395500_N6133500_500.tile.json.gz",
+      "sha256": "eb64a17788a2b7829c12a7c016761b84fd73a954cc03bc201d41af95b55009ab"
+    },
+    {
+      "file": "E395500_N6134000_500-ground.png",
+      "sha256": "f7c5e324d285e7917521c49ae2d4e08f41f9f20ebdd8c82827b71dd639e0877b"
+    },
+    {
+      "file": "E395500_N6134000_500.tile.json.gz",
+      "sha256": "1f0ff44d1456bf7d93e7265202d62ef673fd7b5e847b1c949cc073bfbdd97244"
+    },
+    {
+      "file": "E396000_N6133500_500-ground.png",
+      "sha256": "2c48db9afbf52509a28afa7cf1d8bf4fd88f5943034b72d683346f95e5e64846"
+    },
+    {
+      "file": "E396000_N6133500_500.tile.json.gz",
+      "sha256": "add275279e1f6638914dc9a4b6bd57ba8c993b9b307cae9998d954231b8d21da"
+    },
+    {
+      "file": "E396000_N6134000_500-ground.png",
+      "sha256": "8a8249d5888cedf39b39491eca9f948a6c007ccfbbce537b02a4fb50bbe53868"
+    },
+    {
+      "file": "E396000_N6134000_500.tile.json.gz",
+      "sha256": "8a720db2a689b5a51050c8e592a3fa065d0b4906dc3a25385c62315534e42476"
+    }
+  ]
+}

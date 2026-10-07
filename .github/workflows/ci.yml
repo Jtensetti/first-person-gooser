@@ -6,11 +6,27 @@ on:
 permissions:
   contents: read
 jobs:
-  geometry:
+  flight:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: runtime
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: runtime/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+  geometry:
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python: ['3.11', '3.12']
+        python: ['3.11', '3.13']
+        os: [ubuntu-latest, windows-latest]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
