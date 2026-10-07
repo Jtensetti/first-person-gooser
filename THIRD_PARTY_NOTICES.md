@@ -16,3 +16,7 @@ Projektkod, rådata, härledda data, modeller, fotografier och material har skil
 - **Procedurala Blender-prototyper:** egen enkel kodgenererad geometri, inte tredjepartsmodeller eller bokillustrationer. Ersättningsassets måste registreras med användnings-/distributionsrätt.
 
 Tillämplig attribution ska kunna nås diskret via exempelvis eftertexter eller en informationssida. Inga analyslager eller provenancepaneler ska ligga över den egentliga flygupplevelsen. Referensbilden används som brief och har inte kopierats in i publicerade assets.
+
+## Flygprototyp
+
+Three.js 0.186.1 används under MIT, med LICENSE inkluderad i det lokala byggpaketet. `runtime/public/art/goose-rider.png` är projektets originalgenererade AI-bild (OpenAI Image Generation, 2026-10-07), inte Google Maps-material eller en bokillustration. Gåsen visas som en animerad kameraförgrund.

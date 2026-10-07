@@ -20,3 +20,5 @@ configs/*.local.json
 *.tif
 *.tiff
 *.gpkg
+
+/test-results/

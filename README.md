@@ -1,5 +1,7 @@
 # GÅSEN — Trelleborg på riktigt
 
+**Nu spelbar:** [Gåsförgrund, gränssnitt och fri flygning över Smygehuk](docs/FLIGHT-2026-10-07.md). Lokal Three.js-runtime med karta, foto, styrning och säker höjd över terrängen.
+
 Senaste miljöpasset: [laserbaserade sadeltak, detaljerade material och vegetation](docs/ENVIRONMENT-2026-10-07.md). 255 byggnader i pilotrutan, 173 med godkänd laseranpassning för tak. 60 tester och fem validerade GLB-exporter.
 
 **Laseruppdatering 2026-10-07:** verklig laserdata är importerad. 265 byggnadshöjder härleds, 12 tak klarar enkelplansanpassning och vegetation får lokala höjdprover. [Resultat och begränsningar](docs/LASER-2026-10-07.md). Äldre statusnoteringar nedan beskriver tidigare lägen.
@@ -12,7 +14,7 @@ En reproducerbar **geodata → Blender → tile**-pipeline för en framtida flyg
 
 **Uppdatering 2026-10-07:** kedjan är nu körd i Windows/Python 3.13 och Blender **5.2.2 LTS**. Windows-hashfel är rättat, säker datapaketsåterställning och ortofotoimport är implementerade, och offline-ombyggnad ger identiska tilehashar. Se [aktuell leverans och körguide](docs/DELIVERY-2026-10-07.md). [Tidigare körguide](docs/TOMORROW.md) finns kvar som bakgrund.
 
-**Miljön först:** [kustuppdateringen](docs/COAST-2026-10-07.md) ersätter NMD:s grova havskant med en fryst OSM-kustlinje för piloten. Havspolygonen omprövas mot råkällan vid varje bygge; saknade segment och motsägande riktningar stoppas. UI, gås och flygning väntar tills miljön håller rätt kvalitet.
+**Miljön först:** [kustuppdateringen](docs/COAST-2026-10-07.md) ersätter NMD:s grova havskant med en fryst OSM-kustlinje för piloten. Havspolygonen omprövas mot råkällan vid varje bygge; saknade segment och motsägande riktningar stoppas. Detta var prioriteringen vid kustpasset. Den senare beställningen lägger till den spelbara pilotflygningen ovan.
 
 ## Kör en första värld
 
@@ -53,4 +55,4 @@ Om källmappen saknas klonas det privata källrepot med din befintliga Git-behö
 | [VALIDATION](docs/VALIDATION.md) | Utförda tester, rendering och benchmarkens gränser |
 | [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES.md) | Datavillkor och attribution |
 
-Ingen färdig gås, flygkontroll, webbruntime eller kommunomfattande rekonstruktion påstås vara levererad. Referensbilden styr känslan; verklig geografi styr placeringar, avstånd och siluetter.
+Pilotflygningen är levererad med en animerad gåsförgrund. En komplett riggad 3D-gås, fotorealistisk närmiljö och kommunomfattande rekonstruktion återstår. Referensbilden styr känslan; verklig geografi styr placeringar, avstånd och siluetter.
