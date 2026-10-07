@@ -607,8 +607,12 @@ def _prepare(c, catalog_path, output, preview):
                         "mesh": drape_mesh(shore, terrain, origin, offset=0.02),
                     }
                 )
-        for f in roads:
-            geom = f["geometry"].intersection(region)
+        paved = Polygon()
+        priority = {"primary": 0, "secondary": 1, "tertiary": 2, "residential": 3}
+        for f in sorted(roads, key=lambda f: (priority.get(f["properties"].get("highway"), 4), f["id"])):
+            geom = f["geometry"].intersection(region).difference(paved)
+            # Coincident road polygons flicker at junctions even on exact terrain.
+            paved = paved.union(geom)
             if geom.area:
                 objects.append(
                     {

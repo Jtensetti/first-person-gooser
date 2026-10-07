@@ -332,3 +332,36 @@ def test_missing_path_width_uses_narrow_model(inputs, tmp_path):
     assert area == pytest.approx(150)
     assert road["material"] == "gravel"
     assert road["evidence"] == "modeled"
+
+
+def test_crossing_roads_have_one_surface_at_junction(inputs, tmp_path):
+    from shapely.geometry import LineString, Polygon
+    from shapely.ops import unary_union
+
+    c, catalog = inputs
+    w, s, _, _ = c["bounds"]
+    j = json.loads(catalog.read_text())
+    path = tmp_path / j["assets"]["roads"][0]["path"]
+    features = []
+    for name, coords in [("a", [(10, 50), (110, 50)]), ("b", [(50, 10), (50, 110)])]:
+        features.append(
+            {
+                "type": "Feature",
+                "id": name,
+                "geometry": mapping(LineString([(w + x, s + y) for x, y in coords])),
+                "properties": {"highway": "residential"},
+            }
+        )
+    write_json(path, {"type": "FeatureCollection", "features": features})
+    j["assets"]["roads"][0]["sha256"] = sha256(path)
+    write_json(catalog, j)
+    out = tmp_path / "junction"
+    m = prepare(c, catalog, out, True)
+    tile = json.loads(gzip.decompress((out / m["tiles"][0]["file"]).read_bytes()))
+    surfaces = []
+    for road in (o for o in tile["objects"] if o["kind"] == "road"):
+        mesh = road["mesh"]
+        surfaces.append(unary_union([Polygon([mesh["vertices"][i][:2] for i in f]) for f in mesh["faces"]]))
+    assert len(surfaces) == 2
+    assert surfaces[0].intersection(surfaces[1]).area == pytest.approx(0, abs=1e-8)
+    assert unary_union(surfaces).area == pytest.approx(975)
