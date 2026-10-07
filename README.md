@@ -6,9 +6,11 @@ En reproducerbar **geodata → Blender → tile**-pipeline för en framtida flyg
 
 **Uppdatering 2026-10-07:** kedjan är nu körd i Windows/Python 3.13 och Blender **5.2.2 LTS**. Windows-hashfel är rättat, säker datapaketsåterställning och ortofotoimport är implementerade, och offline-ombyggnad ger identiska tilehashar. Se [aktuell leverans och körguide](docs/DELIVERY-2026-10-07.md). [Tidigare körguide](docs/TOMORROW.md) finns kvar som bakgrund.
 
+**Miljön först:** [kustuppdateringen](docs/COAST-2026-10-07.md) ersätter NMD:s grova havskant med en fryst OSM-kustlinje för piloten. Havspolygonen omprövas mot råkällan vid varje bygge; saknade segment och motsägande riktningar stoppas. UI, gås och flygning väntar tills miljön håller rätt kvalitet.
+
 ## Kör en första värld
 
-Python 3.11 eller 3.12 och Git behövs. Blender 4.5+ används separat; inga GIS-paket behöver installeras i Blender.
+Python 3.11–3.13 och Git behövs. Blender 4.5+ används separat; inga GIS-paket behöver installeras i Blender.
 
 ```bash
 python -m venv .venv

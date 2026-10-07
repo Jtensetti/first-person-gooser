@@ -61,6 +61,7 @@ def audit_world(world):
         "preview_only": m["preview_only"],
         "acceptance_passed": False,
         "gaps": m["gaps"],
+        "coast_qa": m.get("coast_qa"),
         "scope": "Checksums, finite geometry, face indices, shared LOD0 heights, instance budget. Not ortho/LiDAR/visual validation.",
     }
     write_json(world / "qa.json", r)

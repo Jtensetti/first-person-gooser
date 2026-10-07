@@ -155,3 +155,72 @@ def test_orthophoto_is_consumed_and_texture_tampering_fails_qa(inputs, tmp_path)
     assert audit_world(output)["structural_pass"]
     (output / tile["ground_texture"]).write_bytes(b"tampered")
     assert not audit_world(output)["structural_pass"]
+
+
+def test_frozen_coast_replaces_nmd_sea_retains_lake_and_rejects_changed_polygon(inputs, tmp_path):
+    from goosen.coast import parse_coast
+    from goosen.core import transform_xy
+    from shapely.geometry import Polygon
+
+    c, catalog = inputs
+    w, s, e, n = c["bounds"]
+    xy = transform_xy(3006, 4326)
+    coords = [xy(w - 30, s + 80), xy(e + 30, s + 80)]
+    raw = (
+        "<osm>"
+        + "".join(f'<node id="{i}" lon="{x}" lat="{y}"/>' for i, (x, y) in enumerate(coords))
+        + '<way id="1"><nd ref="0"/><nd ref="1"/>'
+        '<tag k="natural" v="coastline"/></way></osm>'
+    ).encode()
+    raw_path = tmp_path / "coast.osm"
+    raw_path.write_bytes(raw)
+    sea, _ = parse_coast(raw, c["bounds"])
+    path = tmp_path / "coast.json"
+    data = {
+        "type": "FeatureCollection",
+        "features": [
+            {"id": "sea", "type": "Feature", "geometry": mapping(sea), "properties": {"water": "sea"}}
+        ],
+    }
+    write_json(path, data)
+    j = json.loads(catalog.read_text())
+    template = j["assets"]["water"][0]
+    j["assets"]["coastline_source"] = [{**template, "path": raw_path.name, "sha256": sha256(raw_path)}]
+    j["assets"]["coastline"] = [
+        {
+            **template,
+            "path": path.name,
+            "sha256": sha256(path),
+            "coverage_kind": "directed_coast_partition",
+            "coverage_bounds": c["bounds"],
+            "raw_sha256": sha256(raw_path),
+        }
+    ]
+    # Deliberately wrong coarse sea mask: authoritative vector must restore land.
+    land = tmp_path / "landcover.tif"
+    raster(land, np.full((157, 157), 62, dtype="float32"), from_origin(w - 31, n + 31, 2, 2))
+    j["assets"]["landcover"][0]["sha256"] = sha256(land)
+    write_json(catalog, j)
+    output = tmp_path / "with-coast"
+    m = prepare(c, catalog, output, True)
+    tile = json.loads(gzip.decompress((output / m["tiles"][0]["file"]).read_bytes()))
+    water = [o for o in tile["objects"] if o["kind"] == "water"]
+    assert {o["id"] for o in water} == {"water-osm-sea", "water-water"}
+    assert all(o["level_evidence"] == "modeled" for o in water if o["id"] == "water-osm-sea")
+
+    def area(obj):
+        v = obj["mesh"]["vertices"]
+        return sum(Polygon([v[i][:2] for i in f]).area for f in obj["mesh"]["faces"])
+
+    assert sum(area(o) for o in water) == pytest.approx(20000 + 225, abs=0.01)
+    terrain = next(o for o in tile["objects"] if o["kind"] == "terrain" and o["lod"] == 0)
+    assert area(terrain) == pytest.approx(62500 - 20000 - 225, abs=0.01)
+    assert all(p["position"][1] >= 80 - 1e-6 for p in tile["instances"])
+    assert audit_world(output)["structural_pass"]
+    assert m["coast_qa"]["terrain_seam"]["residual_median_m"] == pytest.approx(8)
+    data["features"][0]["geometry"] = mapping(box(w, s, e, n))
+    write_json(path, data)
+    j["assets"]["coastline"][0]["sha256"] = sha256(path)
+    write_json(catalog, j)
+    with pytest.raises(DataError, match="differs from its frozen coastline"):
+        prepare(c, catalog, tmp_path / "bad-coast", True)

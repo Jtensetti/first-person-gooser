@@ -1,0 +1,13 @@
+{
+  "date": "2026-10-07",
+  "python": "3.13",
+  "platform": "Windows",
+  "pytest": {
+    "passed": 43,
+    "failed": 0
+  },
+  "ruff_check": "passed",
+  "ruff_format_check": "passed",
+  "git_diff_check": "passed",
+  "scope": "Synthetic geometry and pipeline tests; actual coastline topology revalidated in pilot-qa.json. Not independent geographic or visual acceptance."
+}

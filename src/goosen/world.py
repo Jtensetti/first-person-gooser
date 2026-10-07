@@ -13,14 +13,16 @@ import numpy as np
 from PIL import Image
 from rasterio.features import shapes
 from rasterio.transform import from_origin
-from shapely.geometry import Point, box, shape
+from shapely.geometry import Point, Polygon, box, shape
 from shapely.ops import unary_union
+from shapely import intersects_xy
 
 from .core import DataError, read_json, sha256, stable_seed, tiles, validate_asset, write_json
 from .rasters import warp_nodes, mesh_payload
 from .vectors import read_features, polygon_mesh, building_mesh, drape_mesh, clip_terrain_water
 from .lidar import load_points, derive_building, derive_canopy
 from .imagery import orthophoto_texture
+from .coast import load_coast, shoreline_height_check
 
 FOREST_CODES = [111, 112, 113, 114, 115, 116, 117, 121, 122, 123, 124, 125, 126, 127]
 # Artistic seasonal defaults, never measurements or claimed farm observations.
@@ -70,7 +72,7 @@ def category(code):
     return "grass"
 
 
-def natural_texture(grid, path):
+def natural_texture(grid, path, sea=None):
     # Natural base colours for technical preview only. No fake aerial imagery.
     palette = {
         "forest": (38, 65, 28),
@@ -84,12 +86,21 @@ def natural_texture(grid, path):
     rgb = np.full((*a.shape, 3), (100, 92, 78), dtype=np.uint8)
     for v in np.unique(a[np.isfinite(a)]):
         rgb[a == v] = palette[category(int(v))]
+    if sea is not None:
+        gx, gy = np.meshgrid(
+            grid.west + np.arange(a.shape[1]) * grid.step, grid.north - np.arange(a.shape[0]) * grid.step
+        )
+        wet = intersects_xy(sea, gx, gy)
+        # Unknown former NMD sea pixels get a neutral modeled ground colour.
+        # This changes only the preview palette, never the source NMD classes.
+        rgb[(a == 62) & ~wet] = palette["bare"]
+        rgb[wet] = palette["water"]
     Image.fromarray(rgb).save(path)
 
 
-def water_from_nmd(grid, bounds):
+def water_from_nmd(grid, bounds, codes=(61, 62)):
     # Explicit low-resolution proxy. Native vector coast is required for acceptance.
-    mask = np.isin(grid.values, [61, 62]).astype("uint8")
+    mask = np.isin(grid.values, codes).astype("uint8")
     transform = from_origin(grid.west - grid.step / 2, grid.north + grid.step / 2, grid.step, grid.step)
     geoms = [
         shape(g).intersection(box(*bounds))
@@ -199,23 +210,44 @@ def _prepare(c, catalog_path, output, preview):
         np.linspace(c["bounds"][3], c["bounds"][1], core.values.shape[0]),
     )
     land_codes = land.nearest(gx, gy)
-    invalid_land = int(np.count_nonzero(~np.isfinite(core.values) & ~np.isin(land_codes, [61, 62])))
-    if invalid_land:
-        raise DataError(f"{invalid_land} land terrain nodes missing; supply covering data")
     if not np.isfinite(land_codes).all():
         raise DataError("NMD does not cover the full job")
+    sea, coast_report = load_coast(assets, c["bounds"])
     water = unary_union([f["geometry"] for f in vectors["water"]])
     if not water.is_empty:
         for f in vectors["water"]:
             if f["geometry"].geom_type not in ("Polygon", "MultiPolygon"):
                 raise DataError("Water requires polygons, not an unclosed coast line")
-    if water.is_empty or preview:
-        # Supplement inland OSM polygons with explicitly coarse NMD sea in preview.
-        if preview:
-            water = unary_union([water, water_from_nmd(land, c["bounds"])])
-            gaps.append("Water boundary includes a 10 m NMD proxy")
+    proxy = Polygon()
+    if preview:
+        proxy = water_from_nmd(land, c["bounds"], codes=(61,) if sea is not None else (61, 62))
+        proxy = proxy.difference(water)
+        if sea is not None:
+            proxy = proxy.difference(sea)
+        if proxy.area:
+            gaps.append(
+                "Water boundary includes a 10 m NMD " + ("inland proxy" if sea is not None else "proxy")
+            )
+        water = unary_union([water, proxy])
+    if sea is not None:
+        coarse_sea = water_from_nmd(land, c["bounds"], codes=(62,))
+        coast_report["nmd_disagreement_m2"] = coarse_sea.symmetric_difference(
+            sea.intersection(box(*c["bounds"]))
+        ).area
+        coast_report["terrain_seam"] = shoreline_height_check(sea, c["bounds"], terrain)
+        water = unary_union([water, sea])
+        gaps.append("OSM coastline topology verified; position still needs orthophoto/official comparison")
+        gaps.append("Sea level uses a modeled preview zero, not an observed level in the terrain datum")
+        if not preview:
+            raise DataError("Coastal sea level requires evidence in the terrain vertical datum")
+    invalid_land = int(np.count_nonzero(~np.isfinite(core.values) & ~intersects_xy(water, gx, gy)))
+    if invalid_land:
+        raise DataError(f"{invalid_land} land terrain nodes missing; supply covering data")
     water_surfaces = []
     for f in vectors["water"]:
+        surface = f["geometry"].difference(sea) if sea is not None else f["geometry"]
+        if surface.is_empty:
+            continue
         level = f["properties"].get("water_level_m")
         if level is not None:
             if f["properties"].get("vertical_crs") != vertical:
@@ -232,16 +264,15 @@ def _prepare(c, catalog_path, output, preview):
         water_surfaces.append(
             (
                 f["id"],
-                f["geometry"],
+                surface,
                 float(level),
                 "derived" if f["properties"].get("water_level_m") is not None else "modeled",
             )
         )
-    if preview:
-        proxy = water_from_nmd(land, c["bounds"]).difference(
-            unary_union([f["geometry"] for f in vectors["water"]])
-        )
+    if preview and proxy.area:
         water_surfaces.append(("nmd-proxy", proxy, 0.0, "modeled"))
+    if sea is not None:
+        water_surfaces.append(("osm-sea", sea, 0.0, "modeled"))
     roads = []
     skipped_roads = 0
     for f in vectors["roads"]:
@@ -304,6 +335,12 @@ def _prepare(c, catalog_path, output, preview):
     gaps.append("Vegetation assets, phenology and facade materials still require visual acceptance")
     building_union = unary_union([f["geometry"] for f in buildings])
     road_union = unary_union([f["geometry"] for f in roads])
+    if coast_report is not None:
+        coast_report["building_overlap_m2"] = building_union.intersection(sea).area
+        coast_report["road_overlap_m2"] = road_union.intersection(sea).area
+        coast_report["overlap_note"] = (
+            "Diagnostic only. Modeled road widths and coastal structures need review."
+        )
     exclusion = unary_union([water, building_union.buffer(0.5), road_union])
     fields = []
     unknown_codes = set()
@@ -342,6 +379,7 @@ def _prepare(c, catalog_path, output, preview):
         "config": c,
         "sources": catalog["assets"],
         "gaps": gaps,
+        "coast_qa": coast_report,
         "tiles": [],
         "crop_exclusion_overlap_m2": round(overlaps, 2),
         "acceptance_passed": False,
@@ -409,6 +447,8 @@ def _prepare(c, catalog_path, output, preview):
                         "kind": "water",
                         "material": "water",
                         "evidence": proof,
+                        "level_evidence": proof,
+                        "boundary_evidence": "derived" if water_id != "nmd-proxy" else "modeled",
                         "mesh": polygon_mesh(wet, lambda x, y: level, origin),
                     }
                 )
@@ -460,7 +500,7 @@ def _prepare(c, catalog_path, output, preview):
                 c.get("orthophoto_pixel_m", 0.5),
             )
         else:
-            natural_texture(land.tile(tile["bounds"], 10), output / texture)
+            natural_texture(land.tile(tile["bounds"], 10), output / texture, sea)
             texture_info = {"kind": "modeled_nmd_palette", "sha256": sha256(output / texture)}
         package = {
             "schema": 1,

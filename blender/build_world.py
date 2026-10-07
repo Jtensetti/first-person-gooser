@@ -313,7 +313,14 @@ def build(args):
                 uv_ground(obj, entry["bounds"][2] - entry["bounds"][0])
             obj.location = offset
             obj["evidence"] = record.get("evidence", "derived")
-            for key in ("height_evidence", "roof_evidence", "crop_code", "crop_year"):
+            for key in (
+                "height_evidence",
+                "roof_evidence",
+                "boundary_evidence",
+                "level_evidence",
+                "crop_code",
+                "crop_year",
+            ):
                 if key in record:
                     obj[key] = record[key]
             obj["goosen_kind"] = record["kind"]
