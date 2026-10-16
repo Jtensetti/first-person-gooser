@@ -31,5 +31,6 @@
   "preview_only": true,
   "crop_codebook": "crops-2025.json",
   "modeled_architecture": true,
+  "modeled_lowrise": {"eave_m": 3.0, "outbuilding_eave_m": 2.4},
   "orthophoto_pixel_m": 0.16
 }

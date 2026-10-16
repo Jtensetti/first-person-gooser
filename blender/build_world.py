@@ -447,7 +447,9 @@ def build(args):
             export_objects.append(obj)
             if record.get("part") == "walls":
                 details = facade_payload(
-                    record["mesh"], int(hashlib.sha256(record["id"].encode()).hexdigest()[:8], 16)
+                    record["mesh"],
+                    int(hashlib.sha256(record["id"].encode()).hexdigest()[:8], 16),
+                    storeys=record.get("facade_storeys", 1),
                 )
                 for kind, payload in details.items():
                     if payload["faces"]:
