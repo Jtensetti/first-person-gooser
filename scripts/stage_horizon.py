@@ -5,12 +5,15 @@ import json
 from pathlib import Path
 
 import numpy as np
+import rasterio
+from PIL import Image
+from rasterio.enums import Resampling
 
-from goosen.core import sha256
+from goosen.core import sha256, validate_asset
 from goosen.rasters import warp_nodes
 
 
-def stage(terrain, landcover, output):
+def stage(terrain, landcover, output, orthophoto=None):
     bounds = [395000, 6132500, 397500, 6135000]
     dem = warp_nodes([terrain], bounds, 20)
     nmd = warp_nodes(landcover, bounds, 20, kind="categorical")
@@ -53,12 +56,30 @@ def stage(terrain, landcover, output):
         "bounds": bounds,
         "sources": {p.name: sha256(p) for p in [terrain, *landcover]},
     }
+    if orthophoto is not None:
+        receipt = json.loads(Path(str(orthophoto) + ".source.json").read_text(encoding="utf8"))
+        validate_asset({**receipt, "path": orthophoto.name}, orthophoto.parent, "orthophoto")
+        with rasterio.open(orthophoto) as src:
+            if src.crs.to_epsg() != 3006 or list(src.bounds) != bounds:
+                raise ValueError("Surround image must exactly cover the 2.5km EPSG:3006 extent")
+            if receipt.get("rgb_bands") != [1, 2, 3] or any(t != "uint8" for t in src.dtypes[:3]):
+                raise ValueError("Explicit uint8 RGB bands required")
+            rgb = src.read([1, 2, 3], out_shape=(3, 2048, 2048), resampling=Resampling.average, masked=True)
+            if np.ma.getmaskarray(rgb).any():
+                raise ValueError("Surround image has uncovered pixels")
+        Image.fromarray(np.asarray(rgb).transpose(1, 2, 0)).save(output / "horizon.jpg", quality=93)
+        mesh["texture"] = "horizon.jpg"
+        mesh["texture_pixel_m"] = 2500 / 2048
+        mesh["sources"][orthophoto.name] = receipt["sha256"]
+        mesh["uv"] = [v for row in range(h) for col in range(w) for v in (col / (w - 1), 1 - row / (h - 1))]
     path = output / "horizon.json"
     path.write_text(json.dumps(mesh, separators=(",", ":")), encoding="utf8")
     manifest_path = output / "world.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf8"))
     manifest["horizon"] = "horizon.json"
     manifest["files"]["horizon.json"] = sha256(path)
+    if orthophoto is not None:
+        manifest["files"]["horizon.jpg"] = sha256(output / "horizon.jpg")
     manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf8")
     print(f"Derived surround: {len(indices) // 3} triangles; flight bounds unchanged")
 
@@ -68,5 +89,6 @@ if __name__ == "__main__":
     p.add_argument("--terrain", type=Path, required=True)
     p.add_argument("--landcover", type=Path, nargs="+", required=True)
     p.add_argument("--output", type=Path, required=True)
+    p.add_argument("--orthophoto", type=Path)
     a = p.parse_args()
-    stage(a.terrain, a.landcover, a.output)
+    stage(a.terrain, a.landcover, a.output, a.orthophoto)

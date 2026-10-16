@@ -1,0 +1,122 @@
+[
+  {
+    "tile": "E395500_N6133500_500",
+    "geometry_unchanged": true,
+    "instances_unchanged": true,
+    "texture": {
+      "kind": "orthophoto",
+      "sha256": "6bd60af3d333f49d022805232f28f85c14249e945964c7321d2005c98086abfb",
+      "width": 3125,
+      "height": 3125,
+      "pixel_m": [
+        0.16,
+        0.16
+      ],
+      "bounds": [
+        395500,
+        6133500,
+        396000,
+        6134000
+      ],
+      "uv": "u=(E-west)/width_m; v=(N-south)/height_m; image row 0 north",
+      "source_hashes": [
+        "ca017280bc63c8b0544cd2e24505547508d5d59a3d7dba3be5e039d07f5bea4b"
+      ],
+      "observation_years": [
+        2024
+      ]
+    },
+    "source_rgb_max_error_uint8": 0,
+    "source_rgb_changed_channels": 0
+  },
+  {
+    "tile": "E396000_N6133500_500",
+    "geometry_unchanged": true,
+    "instances_unchanged": true,
+    "texture": {
+      "kind": "orthophoto",
+      "sha256": "38eb7c9b63227412e68aba7d287f2adc4abb3d2c1fbd6d21437da7811ddd8bb2",
+      "width": 3125,
+      "height": 3125,
+      "pixel_m": [
+        0.16,
+        0.16
+      ],
+      "bounds": [
+        396000,
+        6133500,
+        396500,
+        6134000
+      ],
+      "uv": "u=(E-west)/width_m; v=(N-south)/height_m; image row 0 north",
+      "source_hashes": [
+        "ca017280bc63c8b0544cd2e24505547508d5d59a3d7dba3be5e039d07f5bea4b"
+      ],
+      "observation_years": [
+        2024
+      ]
+    },
+    "source_rgb_max_error_uint8": 0,
+    "source_rgb_changed_channels": 0
+  },
+  {
+    "tile": "E395500_N6134000_500",
+    "geometry_unchanged": true,
+    "instances_unchanged": true,
+    "texture": {
+      "kind": "orthophoto",
+      "sha256": "7772c43d3321ebb745137f320852e530a2a23d755c5d40eb933f7778f4c78ef8",
+      "width": 3125,
+      "height": 3125,
+      "pixel_m": [
+        0.16,
+        0.16
+      ],
+      "bounds": [
+        395500,
+        6134000,
+        396000,
+        6134500
+      ],
+      "uv": "u=(E-west)/width_m; v=(N-south)/height_m; image row 0 north",
+      "source_hashes": [
+        "ca017280bc63c8b0544cd2e24505547508d5d59a3d7dba3be5e039d07f5bea4b"
+      ],
+      "observation_years": [
+        2024
+      ]
+    },
+    "source_rgb_max_error_uint8": 0,
+    "source_rgb_changed_channels": 0
+  },
+  {
+    "tile": "E396000_N6134000_500",
+    "geometry_unchanged": true,
+    "instances_unchanged": true,
+    "texture": {
+      "kind": "orthophoto",
+      "sha256": "7453e067e4a3aa90fa7303576c9ebc9491dca681e436968fb5063c710b3e32ee",
+      "width": 3125,
+      "height": 3125,
+      "pixel_m": [
+        0.16,
+        0.16
+      ],
+      "bounds": [
+        396000,
+        6134000,
+        396500,
+        6134500
+      ],
+      "uv": "u=(E-west)/width_m; v=(N-south)/height_m; image row 0 north",
+      "source_hashes": [
+        "ca017280bc63c8b0544cd2e24505547508d5d59a3d7dba3be5e039d07f5bea4b"
+      ],
+      "observation_years": [
+        2024
+      ]
+    },
+    "source_rgb_max_error_uint8": 0,
+    "source_rgb_changed_channels": 0
+  }
+]

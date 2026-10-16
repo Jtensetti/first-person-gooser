@@ -1,5 +1,7 @@
 # GÅSEN — Trelleborg på riktigt
 
+**Ortofoto 2026-10-16:** [16 cm/pixel över pilotområdet, i Blender och flygprototypen](docs/ORTHOPHOTO-2026-10-16.md). Verifierad RGB-bild från maj 2024 ersätter markens 10 m satellitunderlag.
+
 **Nu spelbar:** [Gåsförgrund, gränssnitt och fri flygning över Smygehuk](docs/FLIGHT-2026-10-07.md). Lokal Three.js-runtime med karta, foto, styrning och säker höjd över terrängen.
 
 Senaste miljöpasset: [laserbaserade sadeltak, detaljerade material och vegetation](docs/ENVIRONMENT-2026-10-07.md). 255 byggnader i pilotrutan, 173 med godkänd laseranpassning för tak. 60 tester och fem validerade GLB-exporter.

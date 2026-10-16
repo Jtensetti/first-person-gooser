@@ -122,6 +122,9 @@ async function start(){
   foreground=new T.Scene();gooseCamera=new T.PerspectiveCamera(70,innerWidth/innerHeight,.03,10);foreground.add(new T.HemisphereLight('#eaf1ef','#8b7852',1.4));const key=new T.DirectionalLight('#ffe4b9',2.2);key.position.set(-3,5,1);foreground.add(key);
   goose=await createGoose();foreground.add(goose.root);resize();requestAnimationFrame(tick);
   landscape=await loadLandscape(scene,progress);
+  $('map-attribution').textContent=landscape.manifest.attribution;
+  const ortho=landscape.manifest.imagery?.find(i=>i.kind==='orthophoto');
+  $('imagery-note').textContent=ortho?`Pilotmiljö på 1 km². Ortofoto ${ortho.observation_years.join(', ')}, ${Math.round(ortho.pixel_m[0]*100)} cm/pixel. Byggnadsdetaljer och vegetation är delvis modellerade.`:'Pilotmiljö på 1 km². Markbilden är grov och vissa byggnadsdetaljer är modellerade.';
   const [ground,clearance]=await Promise.all(['ground','clearance'].map(async n=>{const r=await fetch('./world/'+n+'.f32');if(!r.ok)throw new Error('Höjddata saknas');return new Float32Array(await r.arrayBuffer());}));
   const m=landscape.manifest;if(ground.length!==m.grid_size**2||clearance.length!==ground.length)throw new Error('Höjdmodellens storlek stämmer inte');
   const sample=data=>(e,n)=>sampleGrid(data,m.grid_size,m.step,e,n);
