@@ -77,7 +77,9 @@ export async function loadLandscape(scene,progress){
   const r=await fetch('./world/'+manifest.horizon);if(!r.ok)throw new Error('Omgivningen kunde inte läsas');
   const h=await r.json(),g=new T.BufferGeometry();
   g.setAttribute('position',new T.Float32BufferAttribute(h.positions,3));g.setAttribute('color',new T.Float32BufferAttribute(h.colors,3));g.setIndex(h.indices);g.computeVertexNormals();
-  scene.add(new T.Mesh(g,new T.MeshStandardMaterial({vertexColors:true,roughness:.9})));
+  let horizonMaterial=new T.MeshStandardMaterial({vertexColors:true,roughness:.9});
+  if(h.texture){const texture=await new T.TextureLoader().loadAsync('./world/'+h.texture);texture.colorSpace=T.SRGBColorSpace;texture.anisotropy=4;g.setAttribute('uv',new T.Float32BufferAttribute(h.uv,2));horizonMaterial=new T.MeshStandardMaterial({map:texture,roughness:.9});}
+  scene.add(new T.Mesh(g,horizonMaterial));
   if(h.water_indices?.length){const water=g.clone();water.deleteAttribute('color');water.setIndex(h.water_indices);water.computeVertexNormals();const mat=new T.MeshStandardMaterial();seaMaterial(mat);mat.envMapIntensity=.35;scene.add(new T.Mesh(water,mat));}
  }
  // Sequential GPU admission avoids four concurrent texture/geometry spikes.

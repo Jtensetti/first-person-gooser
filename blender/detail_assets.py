@@ -69,7 +69,7 @@ def tree_payload(seed=31):
     return {"vertices": vertices, "faces": faces}, mats
 
 
-def facade_payload(payload, seed):
+def facade_payload(payload, seed, storeys=1):
     """Generic window rhythm on existing wall quads; never surveyed facade detail."""
     rng = random.Random(seed)
     result = {k: {"vertices": [], "faces": []} for k in ["window_glass", "window_frame"]}
@@ -92,7 +92,9 @@ def facade_payload(payload, seed):
         along.normalize()
         normal = Vector((along.y, -along.x, 0))
         wallheight = min(c.z, d.z) - max(a.z, b.z)
-        floors = min(4, int((wallheight - 0.2) / 2.6))
+        # Roof/wall height does not establish occupied storeys. In particular,
+        # a tall gable or a warehouse is not evidence for apartment windows.
+        floors = storeys if wallheight >= 2.4 else 0
         bays = max(1, int(length / 3.1))
         door_bay = bays // 2 if not door_done and wallheight > 2.4 and length > 4 else -1
         if door_bay >= 0:
@@ -109,7 +111,7 @@ def facade_payload(payload, seed):
                 if (floor == 0 and bay == door_bay) or rng.random() < 0.12:
                     continue
                 center = a + along * ((bay + 0.5) * length / bays) + normal * 0.035
-                center.z = max(a.z, b.z) + 1.9 + floor * 2.7
+                center.z = max(a.z, b.z) + 1.65 + floor * 2.7
                 if center.z + 0.65 > min(c.z, d.z) - 0.2:
                     continue
                 u = along * 0.59

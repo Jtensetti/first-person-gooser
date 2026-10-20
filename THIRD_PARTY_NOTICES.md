@@ -20,3 +20,7 @@ Tillämplig attribution ska kunna nås diskret via exempelvis eftertexter eller 
 ## Flygprototyp
 
 Three.js 0.186.1 används under MIT, med LICENSE inkluderad i det lokala byggpaketet. `runtime/public/art/goose-rider.png` är projektets originalgenererade AI-bild (OpenAI Image Generation, 2026-10-07), inte Google Maps-material eller en bokillustration. Gåsen visas som en animerad kameraförgrund.
+
+## Ortofoto 2026-10-16
+
+Ortofoto Nedladdning © Lantmäteriet, CC BY 4.0, bearbetat genom geografisk beskärning/texturframställning. Produkt o61325_3950_25_mr24, fotograferad 2024-05-21, 0,16 m/pixel. Användaren tillhandahöll filen efter beviljad behörighet. Godkänt ändamål och kompletterande personuppgiftsvillkor gäller; leveransen hålls lokal. Se [kontroller och reproduktion](docs/ORTHOPHOTO-2026-10-16.md). Tidigare åtkomstnoteringar ovan är historik.

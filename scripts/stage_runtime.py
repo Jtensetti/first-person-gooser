@@ -29,11 +29,13 @@ def stage(world, scene, output):
     entries = []
     roofs = []
     trees = []
+    imagery = []
     for entry in manifest["tiles"]:
         src = world / entry["file"]
         if sha256(src) != entry["sha256"]:
             raise ValueError("Source tile checksum mismatch")
         tile = json.loads(gzip.decompress(src.read_bytes()))
+        imagery.append(tile.get("ground_texture_info", {}))
         ox, oy = tile["origin"][0] - bounds[0], tile["origin"][1] - bounds[1]
         name = entry["id"]
         for suffix in ["-lod0.glb", "-instances.json"]:
@@ -63,7 +65,7 @@ def stage(world, scene, output):
                 ground[iy, ix] = np.maximum(0, vertices[:count, 2])
             if obj["kind"] == "building" and obj.get("part") == "roof":
                 roofs.append((np.column_stack((x, y, vertices[:, 2])), mesh["faces"]))
-            if obj["kind"] in ("road", "water", "building"):
+            if imagery[-1].get("kind") != "orthophoto" and obj["kind"] in ("road", "water", "building"):
                 color = {"road": "#c8c1a5", "water": "#24444b", "building": "#7c8277"}[obj["kind"]]
                 for face in mesh["faces"]:
                     draw.polygon([(float(x[i]), 1000 - float(y[i])) for i in face], fill=color)
@@ -92,6 +94,7 @@ def stage(world, scene, output):
     obstacles.tofile(output / "clearance.f32")
     overview.save(output / "map.jpg", quality=90)
     shutil.copyfile(scene / "prototype-assets.glb", output / "prototype-assets.glb")
+    has_ortho = all(i.get("kind") == "orthophoto" for i in imagery)
     result = {
         "schema": 1,
         "name": "Smygehuk",
@@ -103,7 +106,12 @@ def stage(world, scene, output):
         "height_datum": "RH2000",
         "preview_only": True,
         "source_manifest_sha256": sha256(world / "manifest.json"),
-        "attribution": "© OpenStreetMap contributors · Copernicus Sentinel · Lantmäteriet via Mapterhorn · Jordbruksverket",
+        "imagery": imagery,
+        "attribution": (
+            "Ortofoto Nedladdning © Lantmäteriet, CC BY 4.0, bearbetat · OpenStreetMap contributors · Jordbruksverket"
+            if has_ortho
+            else "© OpenStreetMap contributors · Copernicus Sentinel · Lantmäteriet via Mapterhorn · Jordbruksverket"
+        ),
         "files": {p.name: sha256(p) for p in sorted(output.iterdir()) if p.is_file()},
     }
     (output / "world.json").write_text(json.dumps(result, indent=2), encoding="utf8")

@@ -1,0 +1,197 @@
+{
+  "before": {
+    "ready": true,
+    "errors": [],
+    "frames": 68,
+    "drawCalls": 95,
+    "triangles": 2805227,
+    "loadSeconds": 2.124,
+    "playing": true,
+    "photo": false,
+    "pointerLocked": true,
+    "quality": "balanced",
+    "flight": {
+      "east": 490,
+      "north": 119.32325018946372,
+      "altitude": 103.88031111457471,
+      "agl": 100.63039262774787,
+      "yaw": 0,
+      "pitch": -0.12,
+      "bank": 0,
+      "speed": 14,
+      "time": 1.0305,
+      "edge": false,
+      "lift": false
+    },
+    "vegetation": {
+      "treesNear": 139,
+      "treesFar": 5337,
+      "crops": 0,
+      "sourceInstances": 18061
+    },
+    "frameMs": 27.85135135135135
+  },
+  "after": {
+    "ready": true,
+    "errors": [],
+    "frames": 202,
+    "drawCalls": 70,
+    "triangles": 2960880,
+    "loadSeconds": 2.124,
+    "playing": true,
+    "photo": false,
+    "pointerLocked": true,
+    "quality": "balanced",
+    "flight": {
+      "east": 554.9266222472033,
+      "north": 144.208208788933,
+      "altitude": 116.49287082705311,
+      "agl": 109.2207028407571,
+      "yaw": 1.7089149641918269,
+      "pitch": -0.12,
+      "bank": -0.02005052631138506,
+      "speed": 26.045023564204904,
+      "time": 5.003200000000003,
+      "edge": false,
+      "lift": false
+    },
+    "vegetation": {
+      "treesNear": 180,
+      "treesFar": 5296,
+      "crops": 0,
+      "sourceInstances": 18061
+    },
+    "frameMs": 29.549122807017547
+  },
+  "village": {
+    "ready": true,
+    "errors": [],
+    "frames": 264,
+    "drawCalls": 80,
+    "triangles": 1991617,
+    "loadSeconds": 2.124,
+    "playing": true,
+    "photo": false,
+    "pointerLocked": true,
+    "quality": "balanced",
+    "flight": {
+      "east": 855.771637425608,
+      "north": 560.0010179610088,
+      "altitude": 84.25587537692401,
+      "agl": 78.02633175824668,
+      "yaw": -0.4,
+      "pitch": -0.12,
+      "bank": 0,
+      "speed": 14,
+      "time": 0.7811999999999989,
+      "edge": false,
+      "lift": false
+    },
+    "vegetation": {
+      "treesNear": 73,
+      "treesFar": 5403,
+      "crops": 0,
+      "sourceInstances": 18061
+    },
+    "frameMs": 27.979444444444436
+  },
+  "final": {
+    "ready": true,
+    "errors": [],
+    "frames": 408,
+    "drawCalls": 79,
+    "triangles": 2001193,
+    "loadSeconds": 2.124,
+    "playing": true,
+    "photo": false,
+    "pointerLocked": true,
+    "quality": "balanced",
+    "flight": {
+      "east": 839.3983696484239,
+      "north": 598.727437996917,
+      "altitude": 79.27935622568053,
+      "agl": 73.07863193345264,
+      "yaw": -0.4,
+      "pitch": -0.12,
+      "bank": 0,
+      "speed": 14,
+      "time": 3.8062000000000054,
+      "edge": false,
+      "lift": false
+    },
+    "vegetation": {
+      "treesNear": 74,
+      "treesFar": 5402,
+      "crops": 0,
+      "sourceInstances": 18061
+    },
+    "frameMs": 22.99277777777777
+  },
+  "errors": [],
+  "embedded": {
+    "dragBefore": {
+      "ready": true,
+      "errors": [],
+      "frames": 18,
+      "drawCalls": 95,
+      "triangles": 2428955,
+      "loadSeconds": 1.4260999999940396,
+      "playing": true,
+      "photo": false,
+      "pointerLocked": false,
+      "quality": "balanced",
+      "flight": {
+        "east": 490,
+        "north": 109.38940554083715,
+        "altitude": 104.83007169351119,
+        "agl": 101.3043710269413,
+        "yaw": 0,
+        "pitch": -0.12,
+        "bank": 0,
+        "speed": 14,
+        "time": 0.3158000000000002,
+        "edge": false,
+        "lift": false
+      },
+      "vegetation": {
+        "treesNear": 100,
+        "treesFar": 5376,
+        "crops": 0,
+        "sourceInstances": 18061
+      },
+      "frameMs": 19.73750000000001
+    },
+    "dragAfter": {
+      "ready": true,
+      "errors": [],
+      "frames": 95,
+      "drawCalls": 100,
+      "triangles": 3200775,
+      "loadSeconds": 1.4260999999940396,
+      "playing": true,
+      "photo": false,
+      "pointerLocked": false,
+      "quality": "balanced",
+      "flight": {
+        "east": 499.3696891484475,
+        "north": 136.70705914352644,
+        "altitude": 102.50272419049963,
+        "agl": 96.84636320714935,
+        "yaw": 0.553182086040565,
+        "pitch": -0.046095273074003136,
+        "bank": -0.05219285692369917,
+        "speed": 14,
+        "time": 2.426800000000003,
+        "edge": false,
+        "lift": false
+      },
+      "vegetation": {
+        "treesNear": 180,
+        "treesFar": 5296,
+        "crops": 0,
+        "sourceInstances": 18061
+      },
+      "frameMs": 26.095698924731185
+    }
+  }
+}

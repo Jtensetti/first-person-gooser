@@ -398,22 +398,29 @@ def build(args):
         offset = Vector(tile["origin"]) - Vector(origin)
         export_objects = []
         ground = material("ground-" + entry["id"], world / tile["ground_texture"])
+        imagery_kind = tile.get("ground_texture_info", {}).get("kind")
         for record in tile["objects"]:
             if record["kind"] == "terrain" and record.get("lod") != args.lod:
                 continue
+            # Keep surveyed image details visible on the draped surface geometry.
+            # Generic stripes would contradict the photographed road markings.
+            if imagery_kind == "orthophoto" and record["kind"] == "road_detail":
+                continue
+            photo_surface = imagery_kind == "orthophoto" and record["kind"] in ("surface", "road", "field")
             obj = mesh_object(
                 entry["id"] + "/" + record["id"],
                 record["mesh"],
                 collection,
                 ground
                 if record["kind"] == "terrain"
+                or photo_surface
                 or (
                     record["kind"] == "field"
                     and tile.get("ground_texture_info", {}).get("kind") in ("orthophoto", "satellite_rgb")
                 )
                 else material(record["material"]),
             )
-            if record["kind"] in ("terrain", "field"):
+            if record["kind"] in ("terrain", "field") or photo_surface:
                 uv_ground(obj, entry["bounds"][2] - entry["bounds"][0])
             if record["kind"] == "building":
                 architectural_uv(obj)
@@ -440,7 +447,9 @@ def build(args):
             export_objects.append(obj)
             if record.get("part") == "walls":
                 details = facade_payload(
-                    record["mesh"], int(hashlib.sha256(record["id"].encode()).hexdigest()[:8], 16)
+                    record["mesh"],
+                    int(hashlib.sha256(record["id"].encode()).hexdigest()[:8], 16),
+                    storeys=record.get("facade_storeys", 1),
                 )
                 for kind, payload in details.items():
                     if payload["faces"]:
@@ -519,8 +528,7 @@ def build(args):
         "limitations": [
             "Procedural prototype vegetation",
             "Generic facades",
-            "No browser benchmark",
-            "No goose or flight mechanic yet",
+            "This report covers the Blender build; runtime validation is separate",
         ],
     }
     (out / "blender-report.json").write_text(json.dumps(report, indent=2))

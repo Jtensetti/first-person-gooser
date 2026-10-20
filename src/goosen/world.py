@@ -23,7 +23,7 @@ from .vectors import read_features, polygon_mesh, drape_mesh, clip_terrain_water
 from .lidar import load_points, derive_building, derive_canopy, canopy_peaks
 from .imagery import orthophoto_texture
 from .coast import load_coast, shoreline_height_check
-from .architecture import modeled_gable, plane_building
+from .architecture import modeled_gable, plane_building, lowrise_eave
 
 FOREST_CODES = [111, 112, 113, 114, 115, 116, 117, 121, 122, 123, 124, 125, 126, 127]
 # Artistic seasonal defaults, never measurements or claimed farm observations.
@@ -489,6 +489,7 @@ def _prepare(c, catalog_path, output, preview):
                 continue
             roof_model = f.get("lidar_qa", {}).get("roof_model")
             model = None
+            fallback_eave = None
             if roof_model or f["roof"]:
                 model = plane_building(
                     f["geometry"],
@@ -498,17 +499,19 @@ def _prepare(c, catalog_path, output, preview):
                     roof_model,
                 )
             if model is None and preview and c.get("modeled_architecture"):
-                model = modeled_gable(f["geometry"], terrain, f["height"], origin)
+                fallback_eave = lowrise_eave(f["geometry"], f["properties"], c.get("modeled_lowrise"))
+                model = modeled_gable(f["geometry"], terrain, f["height"], origin, eave_height=fallback_eave)
             if model is None:
                 # Preserve complex footprints, separate neutral walls from roof.
                 coords = [xy for poly in polygons(f["geometry"]) for xy in poly.exterior.coords]
-                top = (
-                    float(np.max(terrain.sample([p[0] for p in coords], [p[1] for p in coords])))
-                    + f["height"]
+                top = float(np.max(terrain.sample([p[0] for p in coords], [p[1] for p in coords]))) + (
+                    fallback_eave if fallback_eave is not None else f["height"]
                 )
                 model = plane_building(f["geometry"], terrain, origin, [[0, 0, top, 0, 0]])
                 model["evidence"] = "modeled"
-                model["rule"] = "unresolved_flat_volume"
+                model["rule"] = (
+                    "modeled_lowrise_flat" if fallback_eave is not None else "unresolved_flat_volume"
+                )
             palette = stable_seed(c["seed"], f["id"])
             # Art-directed subdued palette, not sampled pixels or per-house observations.
             roof_material = [
@@ -529,7 +532,9 @@ def _prepare(c, catalog_path, output, preview):
                         if part == "walls"
                         else roof_material,
                         "evidence": "derived",
-                        "height_evidence": f["height_evidence"],
+                        "height_evidence": "modeled" if fallback_eave is not None else f["height_evidence"],
+                        "facade_storeys": 1,
+                        "facade_storeys_evidence": "modeled",
                         "roof_evidence": model["evidence"],
                         "material_evidence": "modeled",
                         "model_rule": model["rule"],

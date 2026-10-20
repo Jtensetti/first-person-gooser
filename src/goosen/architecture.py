@@ -2,7 +2,7 @@
 
 import math
 import numpy as np
-from shapely.geometry import LineString
+from shapely.geometry import LineString, Point, box
 from shapely.geometry.polygon import orient
 from shapely.ops import split
 
@@ -10,16 +10,22 @@ from .core import DataError
 from .vectors import polygon_mesh
 
 
-def modeled_gable(geom, terrain, ridge_height, origin):
+def modeled_gable(geom, terrain, ridge_height, origin, *, eave_height=None):
     """Two roof planes on a mostly rectangular footprint; preserve exact outline.
 
-    Only small simple footprints qualify. Complex/large buildings retain their
-    unresolved volume. Orientation follows the long axis, pitch is a model.
+    A local eave-height prior also supports concave small footprints, retaining
+    their outline but not claiming an exact roof layout. Orientation follows the
+    long axis, pitch is a model. Large buildings retain their unresolved volume.
     """
-    if geom.geom_type != "Polygon" or geom.interiors or not 20 <= geom.area <= 600:
+    minimum_area = 8 if eave_height is not None else 20
+    if geom.geom_type != "Polygon" or not minimum_area <= geom.area <= 600:
         return None
     rect = geom.minimum_rotated_rectangle
-    if geom.area / rect.area < 0.82:
+    if eave_height is not None and (geom.interiors or geom.area / rect.area < 0.82):
+        return modeled_lowrise_hip(geom, terrain, origin, eave_height)
+    if geom.interiors:
+        return None
+    if eave_height is None and geom.area / rect.area < 0.82:
         return None
     corners = np.asarray(rect.exterior.coords)[:4]
     edges = np.roll(corners, -1, axis=0) - corners
@@ -35,8 +41,13 @@ def modeled_gable(geom, terrain, ridge_height, origin):
     if not np.isfinite(z).all():
         raise DataError("Modeled building has missing terrain")
     bottom = float(z.min()) - 0.25
-    ridge = float(z.max()) + ridge_height
-    rise = min(half_width * math.tan(math.radians(32)), 2.8, ridge_height * 0.45)
+    rise = min(half_width * math.tan(math.radians(32)), 2.8)
+    if eave_height is None:
+        rise = min(rise, ridge_height * 0.45)
+        ridge = float(z.max()) + ridge_height
+    else:
+        # Local low-rise prior: unreliable laser maxima must not become walls.
+        ridge = float(z.max()) + eave_height + rise
 
     def height(x, y):
         distance = abs(np.dot(np.array([x, y]) - center, normal))
@@ -44,7 +55,7 @@ def modeled_gable(geom, terrain, ridge_height, origin):
 
     line = LineString([center - direction * max(lengths) * 2, center + direction * max(lengths) * 2])
     pieces = split(geom, line)
-    if len(pieces.geoms) != 2:
+    if len(pieces.geoms) < 2:
         return None
     roof = {"vertices": [], "faces": []}
     for piece in pieces.geoms:
@@ -74,11 +85,73 @@ def modeled_gable(geom, terrain, ridge_height, origin):
     return {
         "walls": walls,
         "roof": roof,
-        "rule": "generic_gable_32deg_capped",
-        "ridge_height_m": ridge_height,
+        "rule": "modeled_lowrise_gable" if eave_height is not None else "generic_gable_32deg_capped",
+        "ridge_height_m": ridge - float(z.max()),
         "rise_m": rise,
         "evidence": "modeled",
     }
+
+
+def modeled_lowrise_hip(geom, terrain, origin, eave_height):
+    """Low-rise concave footprint: constant eaves, approximate inward roof slopes.
+
+    Small clipped grid cells preserve boundaries/holes and prevent a concave
+    notch from turning into a full-height wall up to the main ridge.
+    """
+    coords = np.asarray(geom.exterior.coords)
+    ground = terrain.sample(coords[:, 0], coords[:, 1])
+    if not np.isfinite(ground).all():
+        raise DataError("Modeled building has missing terrain")
+    eave = float(ground.max()) + eave_height
+    model = plane_building(geom, terrain, origin, [[0, 0, eave, 0, 0]])
+    roof = {"vertices": [], "faces": []}
+
+    def height(x, y):
+        return eave + min(2.8, geom.boundary.distance(Point(x, y)) * math.tan(math.radians(32)))
+
+    w, s, e, n = geom.bounds
+    step = 1.0
+    for x in np.arange(math.floor(w), e, step):
+        for y in np.arange(math.floor(s), n, step):
+            cell = geom.intersection(box(x, y, x + step, y + step))
+            if cell.is_empty or cell.area < 1e-8:
+                continue
+            part = polygon_mesh(cell, height, origin)
+            offset = len(roof["vertices"])
+            roof["vertices"].extend(part["vertices"])
+            roof["faces"].extend([[offset + i for i in face] for face in part["faces"]])
+    model.update(roof=roof, rule="modeled_lowrise_hip", evidence="modeled")
+    return model
+
+
+def lowrise_eave(geom, properties, profile):
+    """Explicit local preview prior, never a measured or municipality-wide claim."""
+    if not profile or geom.area > 600:
+        return None
+    kind = properties.get("building", "yes")
+    if kind not in {
+        "yes",
+        "house",
+        "detached",
+        "bungalow",
+        "residential",
+        "semidetached_house",
+        "terrace",
+        "shed",
+        "garages",
+        "garage",
+        "toilets",
+        "retail",
+        "restaurant",
+        "commercial",
+        "club",
+    }:
+        return None
+    return (
+        profile["outbuilding_eave_m"]
+        if geom.area < 50 or kind in {"shed", "garage", "garages", "toilets"}
+        else profile["eave_m"]
+    )
 
 
 def plane_building(geom, terrain, origin, planes, ridge=None):
